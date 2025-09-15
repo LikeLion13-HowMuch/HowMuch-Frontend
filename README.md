@@ -1,12 +1,49 @@
-# React + Vite
+# HowMuch? - Frontend
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+React + Vite + JavaScript 기반, '얼마야?' 프론트엔드 레포입니다.
 
-Currently, two official plugins are available:
+---
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## 📌 Tech Stack
 
-## Expanding the ESLint configuration
+- React (Vite + JavaScript)
+- Node.js **20.19.0**
+- npm (패키지 매니저 통일)
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+---
+
+## 🛠️ Development Setup
+
+### 1. Node.js 버전 맞추기
+
+```bash
+nvm install 20.19.0
+nvm use 20.19.0
+node -v   # v20.19.0 확인
+npm -v    # 예: 10.8.2
+```
+
+### 2. 프로젝트 클론 & 의존성 설치
+
+```bash
+git clone https://github.com/LeeGeonMoo/HowMuch-Frontend.git
+cd HowMuch-Frontend
+
+# 의존성 설치 (lock 파일 기준, 재현 가능한 설치)
+npm ci
+```
+
+### 3. 개발 서버 실행
+
+```bash
+npm run dev
+```
+
+실행 후 브라우저에서 http://localhost:5173
+확인
+
+## 📂 폴더 구조
+
+## 🌱 브랜치 전략
+
+## ✍️ 커밋 메시지 컨벤션
