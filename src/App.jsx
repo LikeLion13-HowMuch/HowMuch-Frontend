@@ -1,7 +1,14 @@
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import SearchPage from './pages/SearchPage';
+import DetailPage from './pages/DetailPage';
+
 export default function App() {
   return (
-    <div className="flex h-screen w-screen items-center justify-center bg-gradient-to-r from-purple-500 to-pink-500">
-      <h1 className="text-5xl font-bold text-blue-600">Hello Tailwind!</h1>
-    </div>
+    <BrowserRouter>
+      <Routes>
+        <Route path="/" element={<SearchPage />} />
+        <Route path="/detail" element={<DetailPage />} />
+      </Routes>
+    </BrowserRouter>
   );
 }
