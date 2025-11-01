@@ -7,7 +7,7 @@ export default function DetailPage() {
   const [sortColumn, setSortColumn] = useState(null);
   const [sortDirection, setSortDirection] = useState('asc');
 
-  // 가격 변동 추이 데이터 (7주) - 100만원 넘는 상품에 맞게 조정
+  // 가격 변동 추이 데이터 (7주) - 100만원 넘는 상품에 맞게 조정, 나중에 api에서 받아온 걸로 교체 필요
   const priceHistory = [
     { week: '1월 1주', price: 1320000 },
     { week: '1월 2주', price: 1280000 },
@@ -18,7 +18,7 @@ export default function DetailPage() {
     { week: '2월 3주', price: 1260000 },
   ];
 
-  // 자치구별 상세 시세 데이터
+  // 자치구별 상세 시세 더미 데이터.. 나중에 api에서 받아온 걸로 교체 필요.
   const districtData = [
     { district: '강남구', average: 1350000, count: 25 },
     { district: '마포구', average: 1280000, count: 18 },
@@ -131,7 +131,7 @@ export default function DetailPage() {
       <header className="border-b border-[#d2d2d7] p-6">
         <button
           onClick={() => navigate('/')}
-          className="mb-2 cursor-pointer border-none bg-transparent text-base text-[#0071e3] transition-colors hover:text-[#0051a2]"
+          className="cursor-pointer border-none bg-transparent text-base text-[#0071e3] transition-colors hover:text-[#0051a2]"
         >
           ← 다시 검색하기
         </button>
