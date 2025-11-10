@@ -1,0 +1,57 @@
+{
+  "iphone": {
+    "modelGroups": [
+      {
+        "label": "iPhone 17",
+        "options": ["iPhone 17 Pro Max", "iPhone 17 Pro", "iPhone 17", "iPhone Air"]
+      },
+      {
+        "label": "iPhone 16",
+        "options": ["iPhone 16 Pro Max", "iPhone 16 Pro", "iPhone 16 +", "iPhone 16", "iPhone 16e"]
+      }
+    ],
+    "storages": ["128GB", "256GB", "512GB", "1TB", "2TB"],
+    "colors": ["내추럴 티타늄", "화이트 티타늄", "스페이스 블랙", "미드나이트", "스타라이트"]
+  },
+  "ipad": {
+    "modelGroups": [
+      {
+        "label": "Pro",
+        "options": ["아이패드 프로 13 (M4)", "아이패드 프로 11 (M4)", "아이패드 프로 12.9 (6세대)"]
+      },
+      {
+        "label": "Air",
+        "options": ["아이패드 에어 13 (M2)", "아이패드 에어 11 (M2)"]
+      }
+    ],
+    "connections": ["Wi-Fi", "Wi-Fi + Cellular"]
+  },
+  "macbook": {
+    "chipsetGroups": [
+      {
+        "label": "Apple Silicon",
+        "options": ["M4 Max", "M4 Pro", "M4", "M3 Max", "M3 Pro", "M3"]
+      },
+      {
+        "label": "Intel",
+        "options": ["Intel Core i9", "Intel Core i7"]
+      }
+    ],
+    "rams": ["8GB", "16GB", "24GB", "32GB", "36GB", "64GB"],
+    "ssds": ["256GB", "512GB", "1TB", "2TB"]
+  },
+  "watch": {
+    "series": ["워치 울트라 2", "워치 9", "워치 8", "워치 SE 2"],
+    "sizes": ["49mm", "45mm", "44mm", "41mm", "40mm"],
+    "materials": ["알루미늄", "스테인리스스틸", "티타늄"]
+  },
+  "airpods": {
+    "models": [
+      "에어팟 프로 2세대 C타입",
+      "에어팟 프로 2세대",
+      "에어팟 3세대",
+      "에어팟 맥스",
+      "에어팟 2세대"
+    ]
+  }
+}

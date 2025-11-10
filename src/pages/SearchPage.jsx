@@ -19,6 +19,9 @@ export default function SearchPage() {
   const [regionData, setRegionData] = useState([]);
   const [isRegionLoading, setIsRegionLoading] = useState(true);
   const [regionError, setRegionError] = useState(null);
+  const [deviceOptions, setDeviceOptions] = useState(null);
+  const [isDeviceLoading, setIsDeviceLoading] = useState(true);
+  const [deviceError, setDeviceError] = useState(null);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -50,6 +53,41 @@ export default function SearchPage() {
     };
 
     fetchRegions(); // regionData안에 이제 각종 행정구역 json이 저장되어있는 것.
+
+    return () => {
+      isMounted = false;
+    };
+  }, []);
+
+  useEffect(() => {
+    let isMounted = true;
+
+    const fetchDeviceOptions = async () => {
+      try {
+        const response = await fetch('/device_options.json');
+        if (!response.ok) {
+          throw new Error(`제품 옵션 데이터를 불러오지 못했습니다. (status: ${response.status})`);
+        }
+
+        const data = await response.json();
+        if (isMounted) {
+          setDeviceOptions(data);
+          setDeviceError(null);
+        }
+      } catch (error) {
+        if (isMounted) {
+          setDeviceError(
+            error instanceof Error ? error.message : '알 수 없는 오류가 발생했습니다.',
+          );
+        }
+      } finally {
+        if (isMounted) {
+          setIsDeviceLoading(false);
+        }
+      }
+    };
+
+    fetchDeviceOptions();
 
     return () => {
       isMounted = false;
@@ -147,253 +185,265 @@ export default function SearchPage() {
     });
   };
 
-  const renderIphoneOptions = () => (
-    <div id="iphone-options" className="animate-fadeIn flex flex-col gap-5">
-      <label className="mb-[-0.5rem] text-left text-sm font-semibold text-[#86868b]">
-        iPhone 세부 사양
-      </label>
-      <div className="relative w-full">
-        <select
-          className="w-full cursor-pointer appearance-none rounded-lg border border-[#d2d2d7] bg-transparent py-4 pr-10 pl-5 text-base text-[#1d1d1f] transition-all focus:border-[#0071e3] focus:shadow-[0_0_0_4px_rgba(0,113,227,0.15)] focus:outline-none [&:invalid]:text-[#6e6e73]"
-          value={selectedModel}
-          onChange={(e) => setSelectedModel(e.target.value)}
-        >
-          <option value="" disabled hidden>
-            모델 시리즈
-          </option>
-          <optgroup label="iPhone 17">
-            <option>iPhone 17 Pro Max</option>
-            <option>iPhone 17 Pro</option>
-            <option>iPhone 17</option>
-            <option>iPhone Air</option>
-          </optgroup>
-          <optgroup label="iPhone 16">
-            <option>iPhone 16 Pro Max</option>
-            <option>iPhone 16 Pro</option>
-            <option>iPhone 16 +</option>
-            <option>iPhone 16</option>
-            <option>iPhone 16e</option>
-          </optgroup>
-        </select>
-      </div>
-      <div className="relative w-full">
-        <select
-          className="w-full cursor-pointer appearance-none rounded-lg border border-[#d2d2d7] bg-transparent py-4 pr-10 pl-5 text-base text-[#1d1d1f] transition-all focus:border-[#0071e3] focus:shadow-[0_0_0_4px_rgba(0,113,227,0.15)] focus:outline-none [&:invalid]:text-[#6e6e73]"
-          value={selectedStorage}
-          onChange={(e) => setSelectedStorage(e.target.value)}
-        >
-          <option value="" disabled hidden>
-            저장 용량
-          </option>
-          <option>128GB</option>
-          <option>256GB</option>
-          <option>512GB</option>
-          <option>1TB</option>
-          <option>2TB</option>
-        </select>
-      </div>
-      <div className="relative w-full">
-        <select
-          className="w-full cursor-pointer appearance-none rounded-lg border border-[#d2d2d7] bg-transparent py-4 pr-10 pl-5 text-base text-[#1d1d1f] transition-all focus:border-[#0071e3] focus:shadow-[0_0_0_4px_rgba(0,113,227,0.15)] focus:outline-none [&:invalid]:text-[#6e6e73]"
-          value={selectedColor}
-          onChange={(e) => setSelectedColor(e.target.value)}
-        >
-          <option value="" disabled hidden>
-            색상
-          </option>
-          <option>내추럴 티타늄</option>
-          <option>화이트 티타늄</option>
-          <option>스페이스 블랙</option>
-          <option>미드나이트</option>
-          <option>스타라이트</option>
-        </select>
-      </div>
-    </div>
-  );
+  const renderIphoneOptions = () => {
+    const iphone = deviceOptions?.iphone;
+    if (!iphone) return null;
 
-  const renderIpadOptions = () => (
-    <div id="ipad-options" className="animate-fadeIn flex flex-col gap-5">
-      <label className="mb-[-0.5rem] text-left text-sm font-semibold text-[#86868b]">
-        iPad 세부 사양
-      </label>
-      <div className="relative w-full">
-        <select
-          className="w-full cursor-pointer appearance-none rounded-lg border border-[#d2d2d7] bg-transparent py-4 pr-10 pl-5 text-base text-[#1d1d1f] transition-all focus:border-[#0071e3] focus:shadow-[0_0_0_4px_rgba(0,113,227,0.15)] focus:outline-none [&:invalid]:text-[#6e6e73]"
-          value={selectedModel}
-          onChange={(e) => setSelectedModel(e.target.value)}
-        >
-          <option value="" disabled hidden>
-            모델 시리즈
-          </option>
-          <optgroup label="Pro">
-            <option>아이패드 프로 13 (M4)</option>
-            <option>아이패드 프로 11 (M4)</option>
-            <option>아이패드 프로 12.9 (6세대)</option>
-          </optgroup>
-          <optgroup label="Air">
-            <option>아이패드 에어 13 (M2)</option>
-            <option>아이패드 에어 11 (M2)</option>
-          </optgroup>
-        </select>
+    return (
+      <div id="iphone-options" className="animate-fadeIn flex flex-col gap-5">
+        <label className="mb-[-0.5rem] text-left text-sm font-semibold text-[#86868b]">
+          iPhone 세부 사양
+        </label>
+        <div className="relative w-full">
+          <select
+            className="w-full cursor-pointer appearance-none rounded-lg border border-[#d2d2d7] bg-transparent py-4 pr-10 pl-5 text-base text-[#1d1d1f] transition-all focus:border-[#0071e3] focus:shadow-[0_0_0_4px_rgba(0,113,227,0.15)] focus:outline-none [&:invalid]:text-[#6e6e73]"
+            value={selectedModel}
+            onChange={(e) => setSelectedModel(e.target.value)}
+          >
+            <option value="" disabled hidden>
+              모델 시리즈
+            </option>
+            {iphone.modelGroups?.map((group) => (
+              <optgroup key={group.label} label={group.label}>
+                {group.options.map((option) => (
+                  <option key={option}>{option}</option>
+                ))}
+              </optgroup>
+            ))}
+          </select>
+        </div>
+        <div className="relative w-full">
+          <select
+            className="w-full cursor-pointer appearance-none rounded-lg border border-[#d2d2d7] bg-transparent py-4 pr-10 pl-5 text-base text-[#1d1d1f] transition-all focus:border-[#0071e3] focus:shadow-[0_0_0_4px_rgba(0,113,227,0.15)] focus:outline-none [&:invalid]:text-[#6e6e73]"
+            value={selectedStorage}
+            onChange={(e) => setSelectedStorage(e.target.value)}
+          >
+            <option value="" disabled hidden>
+              저장 용량
+            </option>
+            {iphone.storages?.map((storage) => (
+              <option key={storage}>{storage}</option>
+            ))}
+          </select>
+        </div>
+        <div className="relative w-full">
+          <select
+            className="w-full cursor-pointer appearance-none rounded-lg border border-[#d2d2d7] bg-transparent py-4 pr-10 pl-5 text-base text-[#1d1d1f] transition-all focus:border-[#0071e3] focus:shadow-[0_0_0_4px_rgba(0,113,227,0.15)] focus:outline-none [&:invalid]:text-[#6e6e73]"
+            value={selectedColor}
+            onChange={(e) => setSelectedColor(e.target.value)}
+          >
+            <option value="" disabled hidden>
+              색상
+            </option>
+            {iphone.colors?.map((color) => (
+              <option key={color}>{color}</option>
+            ))}
+          </select>
+        </div>
       </div>
-      <div className="relative w-full">
-        <select
-          className="w-full cursor-pointer appearance-none rounded-lg border border-[#d2d2d7] bg-transparent py-4 pr-10 pl-5 text-base text-[#1d1d1f] transition-all focus:border-[#0071e3] focus:shadow-[0_0_0_4px_rgba(0,113,227,0.15)] focus:outline-none [&:invalid]:text-[#6e6e73]"
-          value={selectedConnection}
-          onChange={(e) => setSelectedConnection(e.target.value)}
-        >
-          <option value="" disabled hidden>
-            연결
-          </option>
-          <option>Wi-Fi</option>
-          <option>Wi-Fi + Cellular</option>
-        </select>
-      </div>
-    </div>
-  );
+    );
+  };
 
-  const renderMacbookOptions = () => (
-    <div id="macbook-options" className="animate-fadeIn flex flex-col gap-5">
-      <label className="mb-[-0.5rem] text-left text-sm font-semibold text-[#86868b]">
-        MacBook 세부 사양
-      </label>
-      <div className="relative w-full">
-        <select
-          className="w-full cursor-pointer appearance-none rounded-lg border border-[#d2d2d7] bg-transparent py-4 pr-10 pl-5 text-base text-[#1d1d1f] transition-all focus:border-[#0071e3] focus:shadow-[0_0_0_4px_rgba(0,113,227,0.15)] focus:outline-none [&:invalid]:text-[#6e6e73]"
-          value={selectedChipset}
-          onChange={(e) => setSelectedChipset(e.target.value)}
-        >
-          <option value="" disabled hidden>
-            칩셋 모델
-          </option>
-          <optgroup label="Apple Silicon">
-            <option>M4 Max</option>
-            <option>M4 Pro</option>
-            <option>M4</option>
-            <option>M3 Max</option>
-            <option>M3 Pro</option>
-            <option>M3</option>
-          </optgroup>
-          <optgroup label="Intel">
-            <option>Intel Core i9</option>
-            <option>Intel Core i7</option>
-          </optgroup>
-        </select>
-      </div>
-      <div className="relative w-full">
-        <select
-          className="w-full cursor-pointer appearance-none rounded-lg border border-[#d2d2d7] bg-transparent py-4 pr-10 pl-5 text-base text-[#1d1d1f] transition-all focus:border-[#0071e3] focus:shadow-[0_0_0_4px_rgba(0,113,227,0.15)] focus:outline-none [&:invalid]:text-[#6e6e73]"
-          value={selectedRam}
-          onChange={(e) => setSelectedRam(e.target.value)}
-        >
-          <option value="" disabled hidden>
-            통합 메모리 (RAM)
-          </option>
-          <option>8GB</option>
-          <option>16GB</option>
-          <option>24GB</option>
-          <option>32GB</option>
-          <option>36GB</option>
-          <option>64GB</option>
-        </select>
-      </div>
-      <div className="relative w-full">
-        <select
-          className="w-full cursor-pointer appearance-none rounded-lg border border-[#d2d2d7] bg-transparent py-4 pr-10 pl-5 text-base text-[#1d1d1f] transition-all focus:border-[#0071e3] focus:shadow-[0_0_0_4px_rgba(0,113,227,0.15)] focus:outline-none [&:invalid]:text-[#b0b0b5]"
-          value={selectedSsd}
-          onChange={(e) => setSelectedSsd(e.target.value)}
-        >
-          <option value="" disabled hidden>
-            저장공간 (SSD)
-          </option>
-          <option>256GB</option>
-          <option>512GB</option>
-          <option>1TB</option>
-          <option>2TB</option>
-        </select>
-      </div>
-    </div>
-  );
+  const renderIpadOptions = () => {
+    const ipad = deviceOptions?.ipad;
+    if (!ipad) return null;
 
-  const renderWatchOptions = () => (
-    <div id="watch-options" className="animate-fadeIn flex flex-col gap-5">
-      <label className="mb-[-0.5rem] text-left text-sm font-semibold text-[#86868b]">
-        Apple Watch 세부 사양
-      </label>
-      <div className="relative w-full">
-        <select
-          className="w-full cursor-pointer appearance-none rounded-lg border border-[#d2d2d7] bg-transparent py-4 pr-10 pl-5 text-base text-[#1d1d1f] transition-all focus:border-[#0071e3] focus:shadow-[0_0_0_4px_rgba(0,113,227,0.15)] focus:outline-none [&:invalid]:text-[#b0b0b5]"
-          value={selectedSeries}
-          onChange={(e) => setSelectedSeries(e.target.value)}
-        >
-          <option value="" disabled hidden>
-            시리즈
-          </option>
-          <option>워치 울트라 2</option>
-          <option>워치 9</option>
-          <option>워치 8</option>
-          <option>워치 SE 2</option>
-        </select>
+    return (
+      <div id="ipad-options" className="animate-fadeIn flex flex-col gap-5">
+        <label className="mb-[-0.5rem] text-left text-sm font-semibold text-[#86868b]">
+          iPad 세부 사양
+        </label>
+        <div className="relative w-full">
+          <select
+            className="w-full cursor-pointer appearance-none rounded-lg border border-[#d2d2d7] bg-transparent py-4 pr-10 pl-5 text-base text-[#1d1d1f] transition-all focus:border-[#0071e3] focus:shadow-[0_0_0_4px_rgba(0,113,227,0.15)] focus:outline-none [&:invalid]:text-[#6e6e73]"
+            value={selectedModel}
+            onChange={(e) => setSelectedModel(e.target.value)}
+          >
+            <option value="" disabled hidden>
+              모델 시리즈
+            </option>
+            {ipad.modelGroups?.map((group) => (
+              <optgroup key={group.label} label={group.label}>
+                {group.options.map((option) => (
+                  <option key={option}>{option}</option>
+                ))}
+              </optgroup>
+            ))}
+          </select>
+        </div>
+        <div className="relative w-full">
+          <select
+            className="w-full cursor-pointer appearance-none rounded-lg border border-[#d2d2d7] bg-transparent py-4 pr-10 pl-5 text-base text-[#1d1d1f] transition-all focus:border-[#0071e3] focus:shadow-[0_0_0_4px_rgba(0,113,227,0.15)] focus:outline-none [&:invalid]:text-[#6e6e73]"
+            value={selectedConnection}
+            onChange={(e) => setSelectedConnection(e.target.value)}
+          >
+            <option value="" disabled hidden>
+              연결
+            </option>
+            {ipad.connections?.map((connection) => (
+              <option key={connection}>{connection}</option>
+            ))}
+          </select>
+        </div>
       </div>
-      <div className="relative w-full">
-        <select
-          className="w-full cursor-pointer appearance-none rounded-lg border border-[#d2d2d7] bg-transparent py-4 pr-10 pl-5 text-base text-[#1d1d1f] transition-all focus:border-[#0071e3] focus:shadow-[0_0_0_4px_rgba(0,113,227,0.15)] focus:outline-none [&:invalid]:text-[#b0b0b5]"
-          value={selectedSize}
-          onChange={(e) => setSelectedSize(e.target.value)}
-        >
-          <option value="" disabled hidden>
-            크기(mm)
-          </option>
-          <option>49mm</option>
-          <option>45mm</option>
-          <option>44mm</option>
-          <option>41mm</option>
-          <option>40mm</option>
-        </select>
-      </div>
-      <div className="relative w-full">
-        <select
-          className="w-full cursor-pointer appearance-none rounded-lg border border-[#d2d2d7] bg-transparent py-4 pr-10 pl-5 text-base text-[#1d1d1f] transition-all focus:border-[#0071e3] focus:shadow-[0_0_0_4px_rgba(0,113,227,0.15)] focus:outline-none [&:invalid]:text-[#b0b0b5]"
-          value={selectedMaterial}
-          onChange={(e) => setSelectedMaterial(e.target.value)}
-        >
-          <option value="" disabled hidden>
-            본체 소재
-          </option>
-          <option>알루미늄</option>
-          <option>스테인리스스틸</option>
-          <option>티타늄</option>
-        </select>
-      </div>
-    </div>
-  );
+    );
+  };
 
-  const renderAirpodsOptions = () => (
-    <div id="airpods-options" className="animate-fadeIn flex flex-col gap-5">
-      <label className="mb-[-0.5rem] text-left text-sm font-semibold text-[#86868b]">
-        AirPods 세부 사양
-      </label>
-      <div className="relative w-full">
-        <select
-          className="w-full cursor-pointer appearance-none rounded-lg border border-[#d2d2d7] bg-transparent py-4 pr-10 pl-5 text-base text-[#1d1d1f] transition-all focus:border-[#0071e3] focus:shadow-[0_0_0_4px_rgba(0,113,227,0.15)] focus:outline-none [&:invalid]:text-[#b0b0b5]"
-          value={selectedModel}
-          onChange={(e) => setSelectedModel(e.target.value)}
-        >
-          <option value="" disabled hidden>
-            모델
-          </option>
-          <option>에어팟 프로 2세대 C타입</option>
-          <option>에어팟 프로 2세대</option>
-          <option>에어팟 3세대</option>
-          <option>에어팟 맥스</option>
-          <option>에어팟 2세대</option>
-        </select>
+  const renderMacbookOptions = () => {
+    const macbook = deviceOptions?.macbook;
+    if (!macbook) return null;
+
+    return (
+      <div id="macbook-options" className="animate-fadeIn flex flex-col gap-5">
+        <label className="mb-[-0.5rem] text-left text-sm font-semibold text-[#86868b]">
+          MacBook 세부 사양
+        </label>
+        <div className="relative w-full">
+          <select
+            className="w-full cursor-pointer appearance-none rounded-lg border border-[#d2d2d7] bg-transparent py-4 pr-10 pl-5 text-base text-[#1d1d1f] transition-all focus:border-[#0071e3] focus:shadow-[0_0_0_4px_rgba(0,113,227,0.15)] focus:outline-none [&:invalid]:text-[#6e6e73]"
+            value={selectedChipset}
+            onChange={(e) => setSelectedChipset(e.target.value)}
+          >
+            <option value="" disabled hidden>
+              칩셋 모델
+            </option>
+            {macbook.chipsetGroups?.map((group) => (
+              <optgroup key={group.label} label={group.label}>
+                {group.options.map((option) => (
+                  <option key={option}>{option}</option>
+                ))}
+              </optgroup>
+            ))}
+          </select>
+        </div>
+        <div className="relative w-full">
+          <select
+            className="w-full cursor-pointer appearance-none rounded-lg border border-[#d2d2d7] bg-transparent py-4 pr-10 pl-5 text-base text-[#1d1d1f] transition-all focus:border-[#0071e3] focus:shadow-[0_0_0_4px_rgba(0,113,227,0.15)] focus:outline-none [&:invalid]:text-[#6e6e73]"
+            value={selectedRam}
+            onChange={(e) => setSelectedRam(e.target.value)}
+          >
+            <option value="" disabled hidden>
+              통합 메모리 (RAM)
+            </option>
+            {macbook.rams?.map((ram) => (
+              <option key={ram}>{ram}</option>
+            ))}
+          </select>
+        </div>
+        <div className="relative w-full">
+          <select
+            className="w-full cursor-pointer appearance-none rounded-lg border border-[#d2d2d7] bg-transparent py-4 pr-10 pl-5 text-base text-[#1d1d1f] transition-all focus:border-[#0071e3] focus:shadow-[0_0_0_4px_rgba(0,113,227,0.15)] focus:outline-none [&:invalid]:text-[#6e6e73]"
+            value={selectedSsd}
+            onChange={(e) => setSelectedSsd(e.target.value)}
+          >
+            <option value="" disabled hidden>
+              저장공간 (SSD)
+            </option>
+            {macbook.ssds?.map((ssd) => (
+              <option key={ssd}>{ssd}</option>
+            ))}
+          </select>
+        </div>
       </div>
-    </div>
-  );
+    );
+  };
+
+  const renderWatchOptions = () => {
+    const watch = deviceOptions?.watch;
+    if (!watch) return null;
+
+    return (
+      <div id="watch-options" className="animate-fadeIn flex flex-col gap-5">
+        <label className="mb-[-0.5rem] text-left text-sm font-semibold text-[#86868b]">
+          Apple Watch 세부 사양
+        </label>
+        <div className="relative w-full">
+          <select
+            className="w-full cursor-pointer appearance-none rounded-lg border border-[#d2d2d7] bg-transparent py-4 pr-10 pl-5 text-base text-[#1d1d1f] transition-all focus:border-[#0071e3] focus:shadow-[0_0_0_4px_rgba(0,113,227,0.15)] focus:outline-none [&:invalid]:text-[#6e6e73]"
+            value={selectedSeries}
+            onChange={(e) => setSelectedSeries(e.target.value)}
+          >
+            <option value="" disabled hidden>
+              시리즈
+            </option>
+            {watch.series?.map((series) => (
+              <option key={series}>{series}</option>
+            ))}
+          </select>
+        </div>
+        <div className="relative w-full">
+          <select
+            className="w-full cursor-pointer appearance-none rounded-lg border border-[#d2d2d7] bg-transparent py-4 pr-10 pl-5 text-base text-[#1d1d1f] transition-all focus:border-[#0071e3] focus:shadow-[0_0_0_4px_rgba(0,113,227,0.15)] focus:outline-none [&:invalid]:text-[#6e6e73]"
+            value={selectedSize}
+            onChange={(e) => setSelectedSize(e.target.value)}
+          >
+            <option value="" disabled hidden>
+              크기(mm)
+            </option>
+            {watch.sizes?.map((size) => (
+              <option key={size}>{size}</option>
+            ))}
+          </select>
+        </div>
+        <div className="relative w-full">
+          <select
+            className="w-full cursor-pointer appearance-none rounded-lg border border-[#d2d2d7] bg-transparent py-4 pr-10 pl-5 text-base text-[#1d1d1f] transition-all focus:border-[#0071e3] focus:shadow-[0_0_0_4px_rgba(0,113,227,0.15)] focus:outline-none [&:invalid]:text-[#6e6e73]"
+            value={selectedMaterial}
+            onChange={(e) => setSelectedMaterial(e.target.value)}
+          >
+            <option value="" disabled hidden>
+              본체 소재
+            </option>
+            {watch.materials?.map((material) => (
+              <option key={material}>{material}</option>
+            ))}
+          </select>
+        </div>
+      </div>
+    );
+  };
+
+  const renderAirpodsOptions = () => {
+    const airpods = deviceOptions?.airpods;
+    if (!airpods) return null;
+
+    return (
+      <div id="airpods-options" className="animate-fadeIn flex flex-col gap-5">
+        <label className="mb-[-0.5rem] text-left text-sm font-semibold text-[#86868b]">
+          AirPods 세부 사양
+        </label>
+        <div className="relative w-full">
+          <select
+            className="w-full cursor-pointer appearance-none rounded-lg border border-[#d2d2d7] bg-transparent py-4 pr-10 pl-5 text-base text-[#1d1d1f] transition-all focus:border-[#0071e3] focus:shadow-[0_0_0_4px_rgba(0,113,227,0.15)] focus:outline-none [&:invalid]:text-[#6e6e73]"
+            value={selectedModel}
+            onChange={(e) => setSelectedModel(e.target.value)}
+          >
+            <option value="" disabled hidden>
+              모델
+            </option>
+            {airpods.models?.map((model) => (
+              <option key={model}>{model}</option>
+            ))}
+          </select>
+        </div>
+      </div>
+    );
+  };
 
   const renderCategoryOptions = () => {
     if (!selectedCategory) return null;
+
+    if (isDeviceLoading) {
+      return <p className="text-sm text-[#86868b]">제품 옵션을 불러오는 중입니다…</p>;
+    }
+
+    if (deviceError) {
+      return (
+        <p className="text-sm text-red-500">
+          제품 옵션을 불러오지 못했습니다. 새로고침 후 다시 시도해주세요.
+        </p>
+      );
+    }
 
     switch (selectedCategory) {
       case 'iphone':
