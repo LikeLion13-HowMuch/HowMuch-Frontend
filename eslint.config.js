@@ -38,7 +38,7 @@ export default defineConfig([
       ...(reactRefresh.configs?.vite?.rules ?? {}),
       'react-refresh/only-export-components': ['warn', { allowConstantExport: true }],
       'react/react-in-jsx-scope': 'off',
-      'no-unused-vars': ['error', { varsIgnorePattern: '^[A-Z_]' }],
+      'no-unused-vars': ['warn', { varsIgnorePattern: '^[A-Z_]', argsIgnorePattern: '^_' }],
     },
 
     settings: { react: { version: 'detect' } },

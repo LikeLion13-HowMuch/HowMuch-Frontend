@@ -1,11 +1,13 @@
 import { useLocation, useNavigate } from 'react-router-dom';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 export default function DetailPage() {
   const location = useLocation();
   const navigate = useNavigate();
   const [sortColumn, setSortColumn] = useState(null);
   const [sortDirection, setSortDirection] = useState('asc');
+  const [districtData, setDistrictData] = useState([]);
+  const [sortedDistrictData, setSortedDistrictData] = useState([]);
 
   // 가격 변동 추이 데이터 (7주) - 100만원 넘는 상품에 맞게 조정, 나중에 api에서 받아온 걸로 교체 필요
   const priceHistory = [
@@ -17,18 +19,6 @@ export default function DetailPage() {
     { week: '2월 2주', price: 1255000 },
     { week: '2월 3주', price: 1260000 },
   ];
-
-  // 자치구별 상세 시세 더미 데이터.. 나중에 api에서 받아온 걸로 교체 필요.
-  const districtData = [
-    { district: '강남구', average: 1350000, count: 25 },
-    { district: '마포구', average: 1280000, count: 18 },
-    { district: '영등포구', average: 1230000, count: 22 },
-    { district: '관악구', average: 1180000, count: 31 },
-    { district: '서초구', average: 1320000, count: 15 },
-    { district: '동작구', average: 1200000, count: 20 },
-  ];
-
-  const [sortedDistrictData, setSortedDistrictData] = useState(districtData);
 
   const formatPrice = (price) => {
     return price.toLocaleString('ko-KR');
@@ -43,7 +33,54 @@ export default function DetailPage() {
   // 모델 정보 추출
   const modelName = location.state?.model || 'Apple 제품';
 
+  // 행정구역 JSON 로드 및 동일 시/구의 동 목록 생성
+  // SearchPage에서도 쓴 행정구역 json을 여기서도 사용
+  useEffect(() => {
+    const fetchRegions = async () => {
+      try {
+        const response = await fetch('/locations_final.json');
+        if (!response.ok) throw new Error('행정구역 데이터를 불러오지 못했습니다.');
+        const data = await response.json();
+
+        // 선택된 시/도와 시/군/구에 해당하는 동 목록 추출
+        const selectedProvince = data.find((p) => p.name === province);
+        if (!selectedProvince) return;
+
+        const selectedCity = selectedProvince.cities.find((c) => c.name === city);
+        if (!selectedCity || !selectedCity.districts || selectedCity.districts.length === 0) return;
+
+        // 동 목록을 기반으로 더미 데이터 생성
+        const basePrice = 1200000;
+        const priceVariance = 200000;
+
+        const generatedDistrictData = selectedCity.districts.map((districtName) => ({
+          district: districtName,
+          average: basePrice + Math.floor(Math.random() * priceVariance) - priceVariance / 2,
+          count: Math.floor(Math.random() * 30) + 10,
+        }));
+
+        setDistrictData(generatedDistrictData);
+        setSortedDistrictData(generatedDistrictData); // 원본이랑 sorted된 데이터를 따로 나누어서 저장한다.
+      } catch (error) {
+        console.error('행정구역 데이터 로드 실패:', error);
+        // 에러 시 기본 더미 데이터 사용..
+        const fallbackData = [
+          { district: '선택한 동', average: 1200000, count: 20 },
+          { district: '인근 동 1', average: 1180000, count: 18 },
+          { district: '인근 동 2', average: 1220000, count: 22 },
+        ];
+        setDistrictData(fallbackData);
+        setSortedDistrictData(fallbackData);
+      }
+    };
+
+    if (province && city) {
+      fetchRegions();
+    }
+  }, [province, city]);
+
   const handleSort = (column) => {
+    // sorting하는 함수
     let newDirection = 'asc';
     if (sortColumn === column && sortDirection === 'asc') {
       newDirection = 'desc';
@@ -352,11 +389,11 @@ export default function DetailPage() {
             </h2>
             <div className="flex flex-col gap-4">
               {[
-                { price: 1150000, location: '관악구 신림동', source: '당근마켓' },
-                { price: 1155000, location: '영등포구 당산동', source: '번개장터' },
-                { price: 1160000, location: '관악구 봉천동', source: '중고나라' },
-                { price: 1160000, location: '마포구 아현동', source: '당근마켓' },
-                { price: 1165000, location: '서초구 방배동', source: '번개장터' },
+                { price: 1150000, location: `${city} ${district}`, source: '당근마켓' },
+                { price: 1155000, location: `${city} ${district}`, source: '번개장터' },
+                { price: 1160000, location: `${city} ${district}`, source: '중고나라' },
+                { price: 1160000, location: `${city} ${district}`, source: '당근마켓' },
+                { price: 1165000, location: `${city} ${district}`, source: '번개장터' },
               ].map((listing, index) => (
                 <div
                   key={index}
