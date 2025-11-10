@@ -101,6 +101,20 @@ export default function DetailPage() {
     setSortedDistrictData(sorted);
   };
 
+  // 동 클릭 시 해당 동으로 페이지 이동
+  const handleDistrictClick = (clickedDistrict) => {
+    navigate('/detail', {
+      state: {
+        ...location.state, // 기존 state (모델, 색상 등) 유지
+        location: {
+          province,
+          city,
+          district: clickedDistrict, // 클릭한 동으로 변경
+        },
+      },
+    });
+  };
+
   // 가격 추이 그래프 계산 - 정갈한 그래프를 위한 정확한 계산
   const calculateGraphPoints = () => {
     const maxPrice = Math.max(...priceHistory.map((d) => d.price));
@@ -366,7 +380,11 @@ export default function DetailPage() {
               </thead>
               <tbody>
                 {sortedDistrictData.map((item, index) => (
-                  <tr key={index} className="transition-colors hover:bg-[#f5f5f7]">
+                  <tr
+                    key={index}
+                    className="cursor-pointer transition-colors hover:bg-[#f5f5f7]"
+                    onClick={() => handleDistrictClick(item.district)} // 클릭 시 해당 동으로 리다이레그그
+                  >
                     <td className="border-b border-[#d2d2d7] py-5 text-left text-base font-semibold">
                       {item.district}
                     </td>
