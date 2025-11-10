@@ -34,29 +34,14 @@ export default function DetailPage() {
     return price.toLocaleString('ko-KR');
   };
 
-  // 지역명 변환 함수
-  const convertLocationName = (locationCode) => {
-    const locationMap = {
-      seoul: '서울특별시',
-      gyeonggi: '경기도',
-      incheon: '인천광역시',
-      busan: '부산광역시',
-      daegu: '대구광역시',
-      gwangju: '광주광역시',
-      daejeon: '대전광역시',
-      ulsan: '울산광역시',
-      sejong: '세종특별자치시',
-      gangwon: '강원도',
-      chungbuk: '충청북도',
-      chungnam: '충청남도',
-      jeonbuk: '전라북도',
-      jeonnam: '전라남도',
-      gyeongbuk: '경상북도',
-      gyeongnam: '경상남도',
-      jeju: '제주특별자치도',
-    };
-    return locationMap[locationCode] || locationCode;
-  };
+  // 지역 정보 추출
+  const locationInfo = location.state?.location || {}; // 직전 페이지인 searchpage에서 넘어온 state!
+  const province = locationInfo.province || '';
+  const city = locationInfo.city || '';
+  const district = locationInfo.district || '';
+
+  // 모델 정보 추출
+  const modelName = location.state?.model || 'Apple 제품';
 
   const handleSort = (column) => {
     let newDirection = 'asc';
@@ -141,12 +126,11 @@ export default function DetailPage() {
         {/* 페이지 타이틀 */}
         <header className="animate-fadeIn mb-[60px] text-center">
           <h1 className="m-0 text-[3.25rem] font-bold tracking-tight">
-            &apos;<span className="text-[#1d1d1f]">{location.state?.model || 'iPhone 14 Pro'}</span>
-            &apos; 시세
+            &apos;<span className="text-[#1d1d1f]">{modelName}</span>&apos; 시세
           </h1>
           <p className="mt-5 text-lg text-[#86868b]">
             <span className="font-semibold text-[#1d1d1f]">
-              {convertLocationName(location.state?.location || '서울특별시')}
+              {province} {city} {district}
             </span>{' '}
             기준 실시간 데이터
           </p>
