@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 export default function SearchPage() {
@@ -13,8 +13,94 @@ export default function SearchPage() {
   const [selectedSeries, setSelectedSeries] = useState('');
   const [selectedSize, setSelectedSize] = useState('');
   const [selectedMaterial, setSelectedMaterial] = useState('');
-  const [selectedLocation, setSelectedLocation] = useState('');
+  const [selectedProvince, setSelectedProvince] = useState('');
+  const [selectedCity, setSelectedCity] = useState('');
+  const [selectedDistrict, setSelectedDistrict] = useState('');
+  const [regionData, setRegionData] = useState([]);
+  const [isRegionLoading, setIsRegionLoading] = useState(true);
+  const [regionError, setRegionError] = useState(null);
   const navigate = useNavigate();
+
+  useEffect(() => {
+    let isMounted = true;
+
+    const fetchRegions = async () => {
+      try {
+        const response = await fetch('/locations_final.json');
+        if (!response.ok) {
+          throw new Error(`행정구역 데이터를 불러오지 못했습니다. (status: ${response.status})`);
+        }
+
+        const data = await response.json();
+        if (isMounted) {
+          setRegionData(data);
+          setRegionError(null);
+        }
+      } catch (error) {
+        if (isMounted) {
+          setRegionError(
+            error instanceof Error ? error.message : '알 수 없는 오류가 발생했습니다.',
+          );
+        }
+      } finally {
+        if (isMounted) {
+          setIsRegionLoading(false);
+        }
+      }
+    };
+
+    fetchRegions(); // regionData안에 이제 각종 행정구역 json이 저장되어있는 것.
+
+    return () => {
+      isMounted = false;
+    };
+  }, []);
+
+  const resetRegionSelections = () => {
+    setSelectedProvince('');
+    setSelectedCity('');
+    setSelectedDistrict('');
+  };
+
+  useEffect(() => {
+    // 행정구역 데이터 로딩 실패 시 선택값 초기화
+    if (!isRegionLoading && regionError) {
+      resetRegionSelections();
+    }
+  }, [isRegionLoading, regionError]);
+
+  useEffect(() => {
+    // 시/도를 바꾸면 시군구, 읍면동 초기화
+    setSelectedCity('');
+    setSelectedDistrict('');
+  }, [selectedProvince]);
+
+  useEffect(() => {
+    // 시군구를 바꾸면 읍면동 초기화
+    setSelectedDistrict('');
+  }, [selectedCity]);
+
+  const provinceOptions = regionData.map((province) => ({
+    label: province.name,
+    value: province.name,
+  }));
+
+  const cityOptions =
+    regionData
+      .find((province) => province.name === selectedProvince)
+      ?.cities.map((city) => ({
+        label: city.name,
+        value: city.name,
+      })) ?? [];
+
+  const districtOptions =
+    regionData
+      .find((province) => province.name === selectedProvince)
+      ?.cities.find((city) => city.name === selectedCity)
+      ?.districts.map((district) => ({
+        label: district,
+        value: district,
+      })) ?? [];
 
   const handleCategoryChange = (e) => {
     setSelectedCategory(e.target.value);
@@ -33,8 +119,8 @@ export default function SearchPage() {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (!selectedCategory || !selectedLocation) {
-      alert('카테고리와 지역을 모두 선택해주세요.');
+    if (!selectedCategory || !selectedProvince || !selectedCity || !selectedDistrict) {
+      alert('카테고리와 모든 지역 정보를 선택해주세요.');
       return;
     }
 
@@ -52,7 +138,11 @@ export default function SearchPage() {
         series: selectedSeries,
         size: selectedSize,
         material: selectedMaterial,
-        location: selectedLocation,
+        location: {
+          province: selectedProvince,
+          city: selectedCity,
+          district: selectedDistrict,
+        },
       },
     });
   };
@@ -64,7 +154,7 @@ export default function SearchPage() {
       </label>
       <div className="relative w-full">
         <select
-          className="w-full cursor-pointer appearance-none rounded-lg border border-[#d2d2d7] bg-transparent py-4 pr-10 pl-5 text-base text-[#1d1d1f] transition-all focus:border-[#0071e3] focus:shadow-[0_0_0_4px_rgba(0,113,227,0.15)] focus:outline-none [&:invalid]:text-[#b0b0b5]"
+          className="w-full cursor-pointer appearance-none rounded-lg border border-[#d2d2d7] bg-transparent py-4 pr-10 pl-5 text-base text-[#1d1d1f] transition-all focus:border-[#0071e3] focus:shadow-[0_0_0_4px_rgba(0,113,227,0.15)] focus:outline-none [&:invalid]:text-[#6e6e73]"
           value={selectedModel}
           onChange={(e) => setSelectedModel(e.target.value)}
         >
@@ -88,7 +178,7 @@ export default function SearchPage() {
       </div>
       <div className="relative w-full">
         <select
-          className="w-full cursor-pointer appearance-none rounded-lg border border-[#d2d2d7] bg-transparent py-4 pr-10 pl-5 text-base text-[#1d1d1f] transition-all focus:border-[#0071e3] focus:shadow-[0_0_0_4px_rgba(0,113,227,0.15)] focus:outline-none [&:invalid]:text-[#b0b0b5]"
+          className="w-full cursor-pointer appearance-none rounded-lg border border-[#d2d2d7] bg-transparent py-4 pr-10 pl-5 text-base text-[#1d1d1f] transition-all focus:border-[#0071e3] focus:shadow-[0_0_0_4px_rgba(0,113,227,0.15)] focus:outline-none [&:invalid]:text-[#6e6e73]"
           value={selectedStorage}
           onChange={(e) => setSelectedStorage(e.target.value)}
         >
@@ -104,7 +194,7 @@ export default function SearchPage() {
       </div>
       <div className="relative w-full">
         <select
-          className="w-full cursor-pointer appearance-none rounded-lg border border-[#d2d2d7] bg-transparent py-4 pr-10 pl-5 text-base text-[#1d1d1f] transition-all focus:border-[#0071e3] focus:shadow-[0_0_0_4px_rgba(0,113,227,0.15)] focus:outline-none [&:invalid]:text-[#b0b0b5]"
+          className="w-full cursor-pointer appearance-none rounded-lg border border-[#d2d2d7] bg-transparent py-4 pr-10 pl-5 text-base text-[#1d1d1f] transition-all focus:border-[#0071e3] focus:shadow-[0_0_0_4px_rgba(0,113,227,0.15)] focus:outline-none [&:invalid]:text-[#6e6e73]"
           value={selectedColor}
           onChange={(e) => setSelectedColor(e.target.value)}
         >
@@ -128,7 +218,7 @@ export default function SearchPage() {
       </label>
       <div className="relative w-full">
         <select
-          className="w-full cursor-pointer appearance-none rounded-lg border border-[#d2d2d7] bg-transparent py-4 pr-10 pl-5 text-base text-[#1d1d1f] transition-all focus:border-[#0071e3] focus:shadow-[0_0_0_4px_rgba(0,113,227,0.15)] focus:outline-none [&:invalid]:text-[#b0b0b5]"
+          className="w-full cursor-pointer appearance-none rounded-lg border border-[#d2d2d7] bg-transparent py-4 pr-10 pl-5 text-base text-[#1d1d1f] transition-all focus:border-[#0071e3] focus:shadow-[0_0_0_4px_rgba(0,113,227,0.15)] focus:outline-none [&:invalid]:text-[#6e6e73]"
           value={selectedModel}
           onChange={(e) => setSelectedModel(e.target.value)}
         >
@@ -148,7 +238,7 @@ export default function SearchPage() {
       </div>
       <div className="relative w-full">
         <select
-          className="w-full cursor-pointer appearance-none rounded-lg border border-[#d2d2d7] bg-transparent py-4 pr-10 pl-5 text-base text-[#1d1d1f] transition-all focus:border-[#0071e3] focus:shadow-[0_0_0_4px_rgba(0,113,227,0.15)] focus:outline-none [&:invalid]:text-[#b0b0b5]"
+          className="w-full cursor-pointer appearance-none rounded-lg border border-[#d2d2d7] bg-transparent py-4 pr-10 pl-5 text-base text-[#1d1d1f] transition-all focus:border-[#0071e3] focus:shadow-[0_0_0_4px_rgba(0,113,227,0.15)] focus:outline-none [&:invalid]:text-[#6e6e73]"
           value={selectedConnection}
           onChange={(e) => setSelectedConnection(e.target.value)}
         >
@@ -169,7 +259,7 @@ export default function SearchPage() {
       </label>
       <div className="relative w-full">
         <select
-          className="w-full cursor-pointer appearance-none rounded-lg border border-[#d2d2d7] bg-transparent py-4 pr-10 pl-5 text-base text-[#1d1d1f] transition-all focus:border-[#0071e3] focus:shadow-[0_0_0_4px_rgba(0,113,227,0.15)] focus:outline-none [&:invalid]:text-[#b0b0b5]"
+          className="w-full cursor-pointer appearance-none rounded-lg border border-[#d2d2d7] bg-transparent py-4 pr-10 pl-5 text-base text-[#1d1d1f] transition-all focus:border-[#0071e3] focus:shadow-[0_0_0_4px_rgba(0,113,227,0.15)] focus:outline-none [&:invalid]:text-[#6e6e73]"
           value={selectedChipset}
           onChange={(e) => setSelectedChipset(e.target.value)}
         >
@@ -192,7 +282,7 @@ export default function SearchPage() {
       </div>
       <div className="relative w-full">
         <select
-          className="w-full cursor-pointer appearance-none rounded-lg border border-[#d2d2d7] bg-transparent py-4 pr-10 pl-5 text-base text-[#1d1d1f] transition-all focus:border-[#0071e3] focus:shadow-[0_0_0_4px_rgba(0,113,227,0.15)] focus:outline-none [&:invalid]:text-[#b0b0b5]"
+          className="w-full cursor-pointer appearance-none rounded-lg border border-[#d2d2d7] bg-transparent py-4 pr-10 pl-5 text-base text-[#1d1d1f] transition-all focus:border-[#0071e3] focus:shadow-[0_0_0_4px_rgba(0,113,227,0.15)] focus:outline-none [&:invalid]:text-[#6e6e73]"
           value={selectedRam}
           onChange={(e) => setSelectedRam(e.target.value)}
         >
@@ -334,7 +424,7 @@ export default function SearchPage() {
           <div className="relative w-full">
             <select
               id="category-select"
-              className="w-full cursor-pointer appearance-none rounded-lg border border-[#d2d2d7] bg-transparent py-4 pr-10 pl-5 text-base text-[#1d1d1f] transition-all focus:border-[#0071e3] focus:shadow-[0_0_0_4px_rgba(0,113,227,0.15)] focus:outline-none [&:invalid]:text-[#b0b0b5]"
+              className="w-full cursor-pointer appearance-none rounded-lg border border-[#d2d2d7] bg-transparent py-4 pr-10 pl-5 text-base text-[#1d1d1f] transition-all focus:border-[#0071e3] focus:shadow-[0_0_0_4px_rgba(0,113,227,0.15)] focus:outline-none [&:invalid]:text-[#6e6e73]"
               required
               value={selectedCategory}
               onChange={handleCategoryChange}
@@ -354,36 +444,76 @@ export default function SearchPage() {
             {renderCategoryOptions()}
           </div>
 
-          <div className="relative w-full">
-            <select
-              id="location-select"
-              className="w-full cursor-pointer appearance-none rounded-lg border border-[#d2d2d7] bg-transparent py-4 pr-10 pl-5 text-base text-[#1d1d1f] transition-all focus:border-[#0071e3] focus:shadow-[0_0_0_4px_rgba(0,113,227,0.15)] focus:outline-none [&:invalid]:text-[#b0b0b5]"
-              required
-              value={selectedLocation}
-              onChange={(e) => setSelectedLocation(e.target.value)}
-            >
-              <option value="" disabled hidden>
-                지역 선택
-              </option>
-              <option value="seoul">서울특별시</option>
-              <option value="gyeonggi">경기도</option>
-              <option value="incheon">인천광역시</option>
-              <option value="busan">부산광역시</option>
-              <option value="daegu">대구광역시</option>
-              <option value="gwangju">광주광역시</option>
-              <option value="daejeon">대전광역시</option>
-              <option value="ulsan">울산광역시</option>
-              <option value="sejong">세종특별자치시</option>
-              <option value="gangwon">강원도</option>
-              <option value="chungbuk">충청북도</option>
-              <option value="chungnam">충청남도</option>
-              <option value="jeonbuk">전라북도</option>
-              <option value="jeonnam">전라남도</option>
-              <option value="gyeongbuk">경상북도</option>
-              <option value="gyeongnam">경상남도</option>
-              <option value="jeju">제주특별자치도</option>
-            </select>
+          <div className="grid w-full gap-4 md:grid-cols-3">
+            <div className="relative w-full">
+              <select
+                id="province-select"
+                className="w-full cursor-pointer appearance-none rounded-lg border border-[#d2d2d7] bg-transparent py-4 pr-10 pl-5 text-base text-[#1d1d1f] transition-all focus:border-[#0071e3] focus:shadow-[0_0_0_4px_rgba(0,113,227,0.15)] focus:outline-none [&:invalid]:text-[#6e6e73]"
+                required
+                value={selectedProvince}
+                onChange={(e) => setSelectedProvince(e.target.value)}
+                disabled={isRegionLoading || !!regionError}
+              >
+                <option value="" disabled hidden>
+                  시 / 도
+                </option>
+                {provinceOptions.map((province) => (
+                  <option key={province.value} value={province.value}>
+                    {province.label}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div className="relative w-full">
+              <select
+                id="city-select"
+                className="w-full cursor-pointer appearance-none rounded-lg border border-[#d2d2d7] bg-transparent py-4 pr-10 pl-5 text-base text-[#1d1d1f] transition-all focus:border-[#0071e3] focus:shadow-[0_0_0_4px_rgba(0,113,227,0.15)] focus:outline-none [&:invalid]:text-[#6e6e73]"
+                required
+                value={selectedCity}
+                onChange={(e) => setSelectedCity(e.target.value)}
+                disabled={!selectedProvince || isRegionLoading || !!regionError}
+              >
+                <option value="" disabled hidden>
+                  시 / 군 / 구
+                </option>
+                {cityOptions.map((city) => (
+                  <option key={city.value} value={city.value}>
+                    {city.label}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div className="relative w-full">
+              <select
+                id="district-select"
+                className="w-full cursor-pointer appearance-none rounded-lg border border-[#d2d2d7] bg-transparent py-4 pr-10 pl-5 text-base text-[#1d1d1f] transition-all focus:border-[#0071e3] focus:shadow-[0_0_0_4px_rgba(0,113,227,0.15)] focus:outline-none [&:invalid]:text-[#6e6e73]"
+                required
+                value={selectedDistrict}
+                onChange={(e) => setSelectedDistrict(e.target.value)}
+                disabled={!selectedCity || isRegionLoading || !!regionError}
+              >
+                <option value="" disabled hidden>
+                  읍 / 면 / 동
+                </option>
+                {districtOptions.map((district) => (
+                  <option key={district.value} value={district.value}>
+                    {district.label}
+                  </option>
+                ))}
+              </select>
+            </div>
           </div>
+
+          {isRegionLoading && (
+            <p className="text-sm text-[#86868b]">행정구역 데이터를 불러오는 중입니다…</p>
+          )}
+          {regionError && (
+            <p className="text-sm text-red-500">
+              행정구역 정보를 가져오는 데 실패했습니다. 새로고침 후 다시 시도해주세요.
+            </p>
+          )}
 
           <button
             type="submit"
