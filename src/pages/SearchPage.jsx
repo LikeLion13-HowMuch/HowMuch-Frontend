@@ -1,8 +1,8 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 export default function SearchPage() {
-  const [selectedCategory, setSelectedCategory] = useState('');
+  const [selectedCategory, setSelectedCategory] = useState('iphone');
   const [selectedModel, setSelectedModel] = useState('');
   const [selectedStorage, setSelectedStorage] = useState('');
   const [selectedColor, setSelectedColor] = useState('');
@@ -11,6 +11,7 @@ export default function SearchPage() {
   const [selectedRam, setSelectedRam] = useState('');
   const [selectedSsd, setSelectedSsd] = useState('');
   const [selectedSeries, setSelectedSeries] = useState('');
+  const [selectedMacbookModel, setSelectedMacbookModel] = useState('');
   const [selectedSize, setSelectedSize] = useState('');
   const [selectedMaterial, setSelectedMaterial] = useState('');
   const [selectedProvince, setSelectedProvince] = useState('');
@@ -22,6 +23,9 @@ export default function SearchPage() {
   const [deviceOptions, setDeviceOptions] = useState(null);
   const [isDeviceLoading, setIsDeviceLoading] = useState(true);
   const [deviceError, setDeviceError] = useState(null);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [filteredModels, setFilteredModels] = useState([]);
+  const [isSearchFocused, setIsSearchFocused] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -140,6 +144,79 @@ export default function SearchPage() {
         value: district,
       })) ?? [];
 
+  // 검색용 아이템을 카테고리별로 동적으로 생성하는 헬퍼 함수
+  const buildSearchItemsByCategory = (options) => {
+    if (!options) return {};
+
+    // iPhone: modelGroups의 모든 options를 평탄화
+    const iphoneItems =
+      options.iphone?.modelGroups?.flatMap((group) =>
+        group.options.map((name) => ({
+          category: 'iphone',
+          label: name,
+          value: name,
+        })),
+      ) ?? [];
+
+    // iPad: modelGroups의 모든 options를 평탄화
+    const ipadItems =
+      options.ipad?.modelGroups?.flatMap((group) =>
+        group.options.map((name) => ({
+          category: 'ipad',
+          label: name,
+          value: name,
+        })),
+      ) ?? [];
+
+    // MacBook: models 배열을 그대로 사용 (모델 먼저 선택)
+    const macbookItems =
+      options.macbook?.models?.map((name) => ({
+        category: 'macbook',
+        label: name,
+        value: name,
+      })) ?? [];
+
+    // Apple Watch: series 배열을 그대로 사용
+    const watchItems =
+      options.watch?.series?.map((name) => ({
+        category: 'watch',
+        label: name,
+        value: name,
+      })) ?? [];
+
+    // AirPods: models 배열을 그대로 사용
+    const airpodsItems =
+      options.airpods?.models?.map((name) => ({
+        category: 'airpods',
+        label: name,
+        value: name,
+      })) ?? [];
+
+    return {
+      iphone: iphoneItems,
+      ipad: ipadItems,
+      macbook: macbookItems,
+      watch: watchItems,
+      airpods: airpodsItems,
+    };
+  };
+
+  // deviceOptions가 로드되면 검색용 아이템 생성
+  const searchItemsByCategory = useMemo(
+    () => (deviceOptions ? buildSearchItemsByCategory(deviceOptions) : {}),
+    [deviceOptions],
+  );
+
+  useEffect(() => {
+    if (!selectedCategory) {
+      setFilteredModels([]);
+      return;
+    }
+
+    const initialItems = searchItemsByCategory[selectedCategory] ?? [];
+    setFilteredModels(initialItems.slice(0, 10));
+  }, [selectedCategory, searchItemsByCategory]);
+
   const handleCategoryChange = (e) => {
     setSelectedCategory(e.target.value);
     // 카테고리 변경 시 세부 옵션 초기화
@@ -153,6 +230,45 @@ export default function SearchPage() {
     setSelectedSeries('');
     setSelectedSize('');
     setSelectedMaterial('');
+    setSelectedMacbookModel('');
+    setSearchQuery('');
+    setFilteredModels([]);
+    setIsSearchFocused(false);
+  };
+
+  const handleSearchChange = (e) => {
+    if (!selectedCategory) return;
+
+    const query = e.target.value;
+    setSearchQuery(query);
+
+    const allItems = searchItemsByCategory[selectedCategory] ?? [];
+    if (!query.trim()) {
+      setFilteredModels(allItems.slice(0, 10));
+      return;
+    }
+
+    const lowerQuery = query.toLowerCase();
+    const filtered = allItems.filter((item) => item.label.toLowerCase().includes(lowerQuery));
+    setFilteredModels(filtered.slice(0, 20));
+  };
+
+  const handleSelectModel = (value) => {
+    if (!selectedCategory) return;
+
+    switch (selectedCategory) {
+      case 'macbook':
+        setSelectedMacbookModel(value);
+        break;
+      case 'watch':
+        setSelectedSeries(value);
+        break;
+      default:
+        setSelectedModel(value);
+    }
+
+    setSearchQuery(value);
+    setIsSearchFocused(false);
   };
 
   const handleSubmit = (e) => {
@@ -167,6 +283,7 @@ export default function SearchPage() {
       state: {
         category: selectedCategory,
         model: selectedModel,
+        macbookModel: selectedMacbookModel,
         storage: selectedStorage,
         color: selectedColor,
         connection: selectedConnection,
@@ -191,27 +308,6 @@ export default function SearchPage() {
 
     return (
       <div id="iphone-options" className="animate-fadeIn flex flex-col gap-5">
-        <label className="mb-[-0.5rem] text-left text-sm font-semibold text-[#86868b]">
-          iPhone 세부 사양
-        </label>
-        <div className="relative w-full">
-          <select
-            className="w-full cursor-pointer appearance-none rounded-lg border border-[#d2d2d7] bg-transparent py-4 pr-10 pl-5 text-base text-[#1d1d1f] transition-all focus:border-[#0071e3] focus:shadow-[0_0_0_4px_rgba(0,113,227,0.15)] focus:outline-none [&:invalid]:text-[#6e6e73]"
-            value={selectedModel}
-            onChange={(e) => setSelectedModel(e.target.value)}
-          >
-            <option value="" disabled hidden>
-              모델 시리즈
-            </option>
-            {iphone.modelGroups?.map((group) => (
-              <optgroup key={group.label} label={group.label}>
-                {group.options.map((option) => (
-                  <option key={option}>{option}</option>
-                ))}
-              </optgroup>
-            ))}
-          </select>
-        </div>
         <div className="relative w-full">
           <select
             className="w-full cursor-pointer appearance-none rounded-lg border border-[#d2d2d7] bg-transparent py-4 pr-10 pl-5 text-base text-[#1d1d1f] transition-all focus:border-[#0071e3] focus:shadow-[0_0_0_4px_rgba(0,113,227,0.15)] focus:outline-none [&:invalid]:text-[#6e6e73]"
@@ -250,27 +346,6 @@ export default function SearchPage() {
 
     return (
       <div id="ipad-options" className="animate-fadeIn flex flex-col gap-5">
-        <label className="mb-[-0.5rem] text-left text-sm font-semibold text-[#86868b]">
-          iPad 세부 사양
-        </label>
-        <div className="relative w-full">
-          <select
-            className="w-full cursor-pointer appearance-none rounded-lg border border-[#d2d2d7] bg-transparent py-4 pr-10 pl-5 text-base text-[#1d1d1f] transition-all focus:border-[#0071e3] focus:shadow-[0_0_0_4px_rgba(0,113,227,0.15)] focus:outline-none [&:invalid]:text-[#6e6e73]"
-            value={selectedModel}
-            onChange={(e) => setSelectedModel(e.target.value)}
-          >
-            <option value="" disabled hidden>
-              모델 시리즈
-            </option>
-            {ipad.modelGroups?.map((group) => (
-              <optgroup key={group.label} label={group.label}>
-                {group.options.map((option) => (
-                  <option key={option}>{option}</option>
-                ))}
-              </optgroup>
-            ))}
-          </select>
-        </div>
         <div className="relative w-full">
           <select
             className="w-full cursor-pointer appearance-none rounded-lg border border-[#d2d2d7] bg-transparent py-4 pr-10 pl-5 text-base text-[#1d1d1f] transition-all focus:border-[#0071e3] focus:shadow-[0_0_0_4px_rgba(0,113,227,0.15)] focus:outline-none [&:invalid]:text-[#6e6e73]"
@@ -293,11 +368,14 @@ export default function SearchPage() {
     const macbook = deviceOptions?.macbook;
     if (!macbook) return null;
 
+    // 맥북 모델이 선택되지 않았으면 아무것도 표시하지 않음 (검색창에서 모델 선택하도록)
+    if (!selectedMacbookModel) {
+      return null;
+    }
+
+    // 맥북 모델이 선택되었으면 칩셋, RAM, SSD 선택 드롭다운 표시
     return (
       <div id="macbook-options" className="animate-fadeIn flex flex-col gap-5">
-        <label className="mb-[-0.5rem] text-left text-sm font-semibold text-[#86868b]">
-          MacBook 세부 사양
-        </label>
         <div className="relative w-full">
           <select
             className="w-full cursor-pointer appearance-none rounded-lg border border-[#d2d2d7] bg-transparent py-4 pr-10 pl-5 text-base text-[#1d1d1f] transition-all focus:border-[#0071e3] focus:shadow-[0_0_0_4px_rgba(0,113,227,0.15)] focus:outline-none [&:invalid]:text-[#6e6e73]"
@@ -354,23 +432,6 @@ export default function SearchPage() {
 
     return (
       <div id="watch-options" className="animate-fadeIn flex flex-col gap-5">
-        <label className="mb-[-0.5rem] text-left text-sm font-semibold text-[#86868b]">
-          Apple Watch 세부 사양
-        </label>
-        <div className="relative w-full">
-          <select
-            className="w-full cursor-pointer appearance-none rounded-lg border border-[#d2d2d7] bg-transparent py-4 pr-10 pl-5 text-base text-[#1d1d1f] transition-all focus:border-[#0071e3] focus:shadow-[0_0_0_4px_rgba(0,113,227,0.15)] focus:outline-none [&:invalid]:text-[#6e6e73]"
-            value={selectedSeries}
-            onChange={(e) => setSelectedSeries(e.target.value)}
-          >
-            <option value="" disabled hidden>
-              시리즈
-            </option>
-            {watch.series?.map((series) => (
-              <option key={series}>{series}</option>
-            ))}
-          </select>
-        </div>
         <div className="relative w-full">
           <select
             className="w-full cursor-pointer appearance-none rounded-lg border border-[#d2d2d7] bg-transparent py-4 pr-10 pl-5 text-base text-[#1d1d1f] transition-all focus:border-[#0071e3] focus:shadow-[0_0_0_4px_rgba(0,113,227,0.15)] focus:outline-none [&:invalid]:text-[#6e6e73]"
@@ -404,30 +465,88 @@ export default function SearchPage() {
   };
 
   const renderAirpodsOptions = () => {
-    const airpods = deviceOptions?.airpods;
-    if (!airpods) return null;
+    return null;
+  };
+
+  const searchLabelMap = {
+    iphone: 'iPhone 세부 사양',
+    ipad: 'iPad 세부 사양',
+    macbook: 'MacBook 세부 사양',
+    watch: 'Apple Watch 세부 사양',
+    airpods: 'AirPods 세부 사양',
+  };
+
+  const searchPlaceholderMap = {
+    iphone: '찾고 있는 iPhone 시리즈를 입력하세요',
+    ipad: '찾고 있는 iPad 모델을 입력하세요',
+    macbook: '찾고 있는 MacBook 모델을 입력하세요',
+    watch: '찾고 있는 Apple Watch 시리즈를 입력하세요',
+    airpods: '찾고 있는 AirPods 모델을 입력하세요',
+  };
+
+  const renderSearchInput = (options = { integrated: false }) => {
+    const { integrated } = options;
+    const placeholder = searchPlaceholderMap[selectedCategory] ?? '찾고 있는 제품명을 입력하세요';
+    const hasOptions = (searchItemsByCategory[selectedCategory] ?? []).length > 0;
+
+    const inputBaseClasses =
+      'w-full bg-transparent py-4 pr-4 pl-5 text-base text-[#1d1d1f] transition-all focus:outline-none';
+    const standaloneClasses =
+      'rounded-lg border border-[#d2d2d7] focus:border-[#0071e3] focus:shadow-[0_0_0_4px_rgba(0,113,227,0.15)] disabled:cursor-not-allowed disabled:bg-[#f5f5f7] disabled:text-[#b0b0b5]';
+    const integratedClasses =
+      'border-none focus:border-none focus:shadow-none disabled:text-[#b0b0b5] disabled:bg-transparent';
 
     return (
-      <div id="airpods-options" className="animate-fadeIn flex flex-col gap-5">
-        <label className="mb-[-0.5rem] text-left text-sm font-semibold text-[#86868b]">
-          AirPods 세부 사양
-        </label>
-        <div className="relative w-full">
-          <select
-            className="w-full cursor-pointer appearance-none rounded-lg border border-[#d2d2d7] bg-transparent py-4 pr-10 pl-5 text-base text-[#1d1d1f] transition-all focus:border-[#0071e3] focus:shadow-[0_0_0_4px_rgba(0,113,227,0.15)] focus:outline-none [&:invalid]:text-[#6e6e73]"
-            value={selectedModel}
-            onChange={(e) => setSelectedModel(e.target.value)}
-          >
-            <option value="" disabled hidden>
-              모델
-            </option>
-            {airpods.models?.map((model) => (
-              <option key={model}>{model}</option>
-            ))}
-          </select>
-        </div>
+      <div className={`relative w-full ${integrated ? '' : ''}`}>
+        <input
+          type="text"
+          autoComplete="off"
+          className={`${inputBaseClasses} ${integrated ? integratedClasses : standaloneClasses}`}
+          placeholder={placeholder}
+          value={searchQuery}
+          onChange={handleSearchChange}
+          onFocus={() => hasOptions && setIsSearchFocused(true)}
+          onBlur={() => setTimeout(() => setIsSearchFocused(false), 100)}
+          disabled={!hasOptions}
+        />
+        {isSearchFocused && (
+          <div className="absolute z-20 mt-1 w-full rounded-lg border border-[#d2d2d7] bg-white text-left shadow-lg">
+            {filteredModels.length > 0 ? (
+              <ul className="max-h-60 overflow-y-auto py-1">
+                {filteredModels.map((item) => (
+                  <li
+                    key={item.value}
+                    className="cursor-pointer px-4 py-2 text-sm hover:bg-[#f5f5f7]"
+                    onMouseDown={() => handleSelectModel(item.value)}
+                  >
+                    {item.label}
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <p className="px-4 py-3 text-sm text-[#86868b]">검색 결과가 없습니다.</p>
+            )}
+          </div>
+        )}
       </div>
     );
+  };
+
+  const renderAdditionalOptions = () => {
+    switch (selectedCategory) {
+      case 'iphone':
+        return renderIphoneOptions();
+      case 'ipad':
+        return renderIpadOptions();
+      case 'macbook':
+        return renderMacbookOptions();
+      case 'watch':
+        return renderWatchOptions();
+      case 'airpods':
+        return renderAirpodsOptions();
+      default:
+        return null;
+    }
   };
 
   const renderCategoryOptions = () => {
@@ -445,20 +564,35 @@ export default function SearchPage() {
       );
     }
 
-    switch (selectedCategory) {
-      case 'iphone':
-        return renderIphoneOptions();
-      case 'ipad':
-        return renderIpadOptions();
-      case 'macbook':
-        return renderMacbookOptions();
-      case 'watch':
-        return renderWatchOptions();
-      case 'airpods':
-        return renderAirpodsOptions();
-      default:
-        return null;
+    const searchLabel = searchLabelMap[selectedCategory];
+    const additionalContent = renderAdditionalOptions();
+    if (!additionalContent) return null;
+
+    const hasPrimarySelection = (() => {
+      switch (selectedCategory) {
+        case 'macbook':
+          return Boolean(selectedMacbookModel);
+        case 'watch':
+          return Boolean(selectedSeries);
+        default:
+          return Boolean(selectedModel);
+      }
+    })();
+
+    if (!hasPrimarySelection) {
+      return null;
     }
+
+    return (
+      <div className="flex w-full flex-col gap-5">
+        {searchLabel && (
+          <label className="mb-[-0.5rem] text-left text-sm font-semibold text-[#86868b]">
+            {searchLabel}
+          </label>
+        )}
+        {additionalContent}
+      </div>
+    );
   };
 
   return (
@@ -471,90 +605,119 @@ export default function SearchPage() {
         </p>
 
         <form className="flex flex-col gap-5" onSubmit={handleSubmit}>
-          <div className="relative w-full">
-            <select
-              id="category-select"
-              className="w-full cursor-pointer appearance-none rounded-lg border border-[#d2d2d7] bg-transparent py-4 pr-10 pl-5 text-base text-[#1d1d1f] transition-all focus:border-[#0071e3] focus:shadow-[0_0_0_4px_rgba(0,113,227,0.15)] focus:outline-none [&:invalid]:text-[#6e6e73]"
-              required
-              value={selectedCategory}
-              onChange={handleCategoryChange}
-            >
-              <option value="" disabled hidden>
-                제품 카테고리 선택
-              </option>
-              <option value="iphone">iPhone</option>
-              <option value="ipad">iPad</option>
-              <option value="macbook">MacBook</option>
-              <option value="watch">Apple Watch</option>
-              <option value="airpods">AirPods</option>
-            </select>
+          <div className="flex w-full flex-col gap-3">
+            <div className="flex w-full flex-col rounded-lg border border-[#d2d2d7] focus-within:border-[#0071e3] focus-within:shadow-[0_0_0_4px_rgba(0,113,227,0.15)] md:flex-row">
+              <div className="relative border-b border-[#d2d2d7] bg-transparent md:w-[calc((100%-2rem)/3)] md:rounded-l-lg md:border-r md:border-b-0">
+                <select
+                  id="category-select"
+                  className="w-full cursor-pointer appearance-none bg-transparent py-4 pr-8 pl-5 text-base text-[#1d1d1f] transition-all focus:outline-none"
+                  required
+                  value={selectedCategory}
+                  onChange={handleCategoryChange}
+                >
+                  <option value="iphone">iPhone</option>
+                  <option value="ipad">iPad</option>
+                  <option value="macbook">MacBook</option>
+                  <option value="watch">Apple Watch</option>
+                  <option value="airpods">AirPods</option>
+                </select>
+                <span className="pointer-events-none absolute top-1/2 right-4 -translate-y-1/2 text-sm text-[#6e6e73]">
+                  ▾
+                </span>
+              </div>
+              <div className="flex-1 md:rounded-r-lg">
+                {renderSearchInput({ integrated: true })}
+              </div>
+            </div>
           </div>
 
           <div id="dynamic-options-container" className="flex w-full flex-col gap-5">
             {renderCategoryOptions()}
           </div>
 
-          <div className="grid w-full gap-4 md:grid-cols-3">
-            <div className="relative w-full">
-              <select
-                id="province-select"
-                className="w-full cursor-pointer appearance-none rounded-lg border border-[#d2d2d7] bg-transparent py-4 pr-10 pl-5 text-base text-[#1d1d1f] transition-all focus:border-[#0071e3] focus:shadow-[0_0_0_4px_rgba(0,113,227,0.15)] focus:outline-none [&:invalid]:text-[#6e6e73]"
-                required
-                value={selectedProvince}
-                onChange={(e) => setSelectedProvince(e.target.value)}
-                disabled={isRegionLoading || !!regionError}
-              >
-                <option value="" disabled hidden>
-                  시 / 도
-                </option>
-                {provinceOptions.map((province) => (
-                  <option key={province.value} value={province.value}>
-                    {province.label}
-                  </option>
-                ))}
-              </select>
-            </div>
+          {(() => {
+            const hasPrimarySelection = (() => {
+              switch (selectedCategory) {
+                case 'macbook':
+                  return Boolean(selectedMacbookModel);
+                case 'watch':
+                  return Boolean(selectedSeries);
+                default:
+                  return Boolean(selectedModel);
+              }
+            })();
 
-            <div className="relative w-full">
-              <select
-                id="city-select"
-                className="w-full cursor-pointer appearance-none rounded-lg border border-[#d2d2d7] bg-transparent py-4 pr-10 pl-5 text-base text-[#1d1d1f] transition-all focus:border-[#0071e3] focus:shadow-[0_0_0_4px_rgba(0,113,227,0.15)] focus:outline-none [&:invalid]:text-[#6e6e73]"
-                required
-                value={selectedCity}
-                onChange={(e) => setSelectedCity(e.target.value)}
-                disabled={!selectedProvince || isRegionLoading || !!regionError}
-              >
-                <option value="" disabled hidden>
-                  시 / 군 / 구
-                </option>
-                {cityOptions.map((city) => (
-                  <option key={city.value} value={city.value}>
-                    {city.label}
-                  </option>
-                ))}
-              </select>
-            </div>
+            return (
+              <div className="flex w-full flex-col gap-5">
+                {hasPrimarySelection && (
+                  <label className="mb-[-0.5rem] text-left text-sm font-semibold text-[#86868b]">
+                    거래 지역
+                  </label>
+                )}
+                <div className="grid w-full gap-4 md:grid-cols-3">
+                  <div className="relative w-full">
+                    <select
+                      id="province-select"
+                      className="w-full cursor-pointer appearance-none rounded-lg border border-[#d2d2d7] bg-transparent py-4 pr-10 pl-5 text-base text-[#1d1d1f] transition-all focus:border-[#0071e3] focus:shadow-[0_0_0_4px_rgba(0,113,227,0.15)] focus:outline-none [&:invalid]:text-[#6e6e73]"
+                      required
+                      value={selectedProvince}
+                      onChange={(e) => setSelectedProvince(e.target.value)}
+                      disabled={isRegionLoading || !!regionError}
+                    >
+                      <option value="" disabled hidden>
+                        시 / 도
+                      </option>
+                      {provinceOptions.map((province) => (
+                        <option key={province.value} value={province.value}>
+                          {province.label}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
 
-            <div className="relative w-full">
-              <select
-                id="district-select"
-                className="w-full cursor-pointer appearance-none rounded-lg border border-[#d2d2d7] bg-transparent py-4 pr-10 pl-5 text-base text-[#1d1d1f] transition-all focus:border-[#0071e3] focus:shadow-[0_0_0_4px_rgba(0,113,227,0.15)] focus:outline-none [&:invalid]:text-[#6e6e73]"
-                required
-                value={selectedDistrict}
-                onChange={(e) => setSelectedDistrict(e.target.value)}
-                disabled={!selectedCity || isRegionLoading || !!regionError}
-              >
-                <option value="" disabled hidden>
-                  읍 / 면 / 동
-                </option>
-                {districtOptions.map((district) => (
-                  <option key={district.value} value={district.value}>
-                    {district.label}
-                  </option>
-                ))}
-              </select>
-            </div>
-          </div>
+                  <div className="relative w-full">
+                    <select
+                      id="city-select"
+                      className="w-full cursor-pointer appearance-none rounded-lg border border-[#d2d2d7] bg-transparent py-4 pr-10 pl-5 text-base text-[#1d1d1f] transition-all focus:border-[#0071e3] focus:shadow-[0_0_0_4px_rgba(0,113,227,0.15)] focus:outline-none [&:invalid]:text-[#6e6e73]"
+                      required
+                      value={selectedCity}
+                      onChange={(e) => setSelectedCity(e.target.value)}
+                      disabled={!selectedProvince || isRegionLoading || !!regionError}
+                    >
+                      <option value="" disabled hidden>
+                        시 / 군 / 구
+                      </option>
+                      {cityOptions.map((city) => (
+                        <option key={city.value} value={city.value}>
+                          {city.label}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+
+                  <div className="relative w-full">
+                    <select
+                      id="district-select"
+                      className="w-full cursor-pointer appearance-none rounded-lg border border-[#d2d2d7] bg-transparent py-4 pr-10 pl-5 text-base text-[#1d1d1f] transition-all focus:border-[#0071e3] focus:shadow-[0_0_0_4px_rgba(0,113,227,0.15)] focus:outline-none [&:invalid]:text-[#6e6e73]"
+                      required
+                      value={selectedDistrict}
+                      onChange={(e) => setSelectedDistrict(e.target.value)}
+                      disabled={!selectedCity || isRegionLoading || !!regionError}
+                    >
+                      <option value="" disabled hidden>
+                        읍 / 면 / 동
+                      </option>
+                      {districtOptions.map((district) => (
+                        <option key={district.value} value={district.value}>
+                          {district.label}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                </div>
+              </div>
+            );
+          })()}
 
           {isRegionLoading && (
             <p className="text-sm text-[#86868b]">행정구역 데이터를 불러오는 중입니다…</p>
