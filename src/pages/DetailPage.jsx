@@ -1,5 +1,7 @@
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useState, useEffect } from 'react';
+import { getPriceAnalysis, getPriceAnalysisMock } from '../api/priceApi';
+import { mapFormDataToApiRequest } from '../utils/apiMapper';
 
 export default function DetailPage() {
   const location = useLocation();
@@ -9,16 +11,13 @@ export default function DetailPage() {
   const [districtData, setDistrictData] = useState([]);
   const [sortedDistrictData, setSortedDistrictData] = useState([]);
 
-  // 가격 변동 추이 데이터 (7주) - 100만원 넘는 상품에 맞게 조정, 나중에 api에서 받아온 걸로 교체 필요
-  const priceHistory = [
-    { week: '1월 1주', price: 1320000 },
-    { week: '1월 2주', price: 1280000 },
-    { week: '1월 3주', price: 1250000 },
-    { week: '1월 4주', price: 1230000 },
-    { week: '2월 1주', price: 1240000 },
-    { week: '2월 2주', price: 1255000 },
-    { week: '2월 3주', price: 1260000 },
-  ];
+  // API 데이터 상태
+  const [apiData, setApiData] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  // API에서 받아온 가격 변동 추이 데이터 (기본값)
+  const priceHistory = apiData?.price_trend?.chart_data || [];
 
   const formatPrice = (price) => {
     return price.toLocaleString('ko-KR');
@@ -31,53 +30,46 @@ export default function DetailPage() {
   const district = locationInfo.district || '';
 
   // 모델 정보 추출
-  const modelName = location.state?.model || 'Apple 제품';
+  const modelName = apiData?.summary_info?.model_name || location.state?.model || 'Apple 제품';
 
   // 행정구역 JSON 로드 및 동일 시/구의 동 목록 생성
   // SearchPage에서도 쓴 행정구역 json을 여기서도 사용
   useEffect(() => {
-    const fetchRegions = async () => {
+    const fetchPriceData = async () => {
+      setIsLoading(true);
+      setError(null);
+
       try {
-        const response = await fetch('/locations_final.json');
-        if (!response.ok) throw new Error('행정구역 데이터를 불러오지 못했습니다.');
-        const data = await response.json();
+        // SearchPage에서 넘어온 모든 state를 API 요청 형식으로 변환
+        const requestData = mapFormDataToApiRequest(location.state);
 
-        // 선택된 시/도와 시/군/구에 해당하는 동 목록 추출
-        const selectedProvince = data.find((p) => p.name === province);
-        if (!selectedProvince) return;
+        // Mock API 호출 (****************************************      나중에 getPriceAnalysis로 교체)
+        const response = await getPriceAnalysisMock(requestData);
 
-        const selectedCity = selectedProvince.cities.find((c) => c.name === city);
-        if (!selectedCity || !selectedCity.districts || selectedCity.districts.length === 0) return;
+        setApiData(response.data);
 
-        // 동 목록을 기반으로 더미 데이터 생성
-        const basePrice = 1200000;
-        const priceVariance = 200000;
-
-        const generatedDistrictData = selectedCity.districts.map((districtName) => ({
-          district: districtName,
-          average: basePrice + Math.floor(Math.random() * priceVariance) - priceVariance / 2,
-          count: Math.floor(Math.random() * 30) + 10,
+        // 지역별 시세 데이터 설정
+        const districtList = response.data.regional_analysis.detail_by_district.map((item) => ({
+          district: item.emd,
+          average: item.average_price,
+          count: item.listing_count,
         }));
 
-        setDistrictData(generatedDistrictData);
-        setSortedDistrictData(generatedDistrictData); // 원본이랑 sorted된 데이터를 따로 나누어서 저장한다.
-      } catch (error) {
-        console.error('행정구역 데이터 로드 실패:', error);
-        // 에러 시 기본 더미 데이터 사용..
-        const fallbackData = [
-          { district: '선택한 동', average: 1200000, count: 20 },
-          { district: '인근 동 1', average: 1180000, count: 18 },
-          { district: '인근 동 2', average: 1220000, count: 22 },
-        ];
-        setDistrictData(fallbackData);
-        setSortedDistrictData(fallbackData);
+        setDistrictData(districtList);
+        setSortedDistrictData(districtList);
+      } catch (err) {
+        console.error('API 호출 실패:', err);
+        setError('데이터를 불러오는데 실패했습니다. 다시 시도해주세요.');
+      } finally {
+        setIsLoading(false);
       }
     };
 
-    if (province && city) {
-      fetchRegions();
+    // location.state가 있을 때만 API 호출
+    if (location.state) {
+      fetchPriceData();
     }
-  }, [province, city]);
+  }, [location.state]);
 
   const handleSort = (column) => {
     // sorting하는 함수
@@ -156,11 +148,80 @@ export default function DetailPage() {
   const graphData = calculateGraphPoints();
 
   // 최신 가격 대비 하락률 계산
-  const priceChange = (
-    ((priceHistory[priceHistory.length - 1].price - priceHistory[0].price) /
-      priceHistory[0].price) *
-    100
-  ).toFixed(1);
+  const priceChange = apiData?.price_trend?.change_rate || 0;
+
+  // 지역별 최고/최저 시세 계산
+  const getHighestAndLowestDistrict = () => {
+    if (!apiData?.regional_analysis?.detail_by_district) {
+      return { highest: null, lowest: null };
+    }
+
+    const districts = apiData.regional_analysis.detail_by_district;
+
+    const highest = districts.reduce(
+      (max, district) => (district.average_price > max.average_price ? district : max),
+      districts[0],
+    );
+
+    const lowest = districts.reduce(
+      (min, district) => (district.average_price < min.average_price ? district : min),
+      districts[0],
+    );
+
+    return { highest, lowest };
+  };
+
+  const { highest: highestDistrict, lowest: lowestDistrict } = getHighestAndLowestDistrict();
+
+  // 로딩 중일 때
+  if (isLoading) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-white">
+        <div className="text-center">
+          <div className="mb-4 text-2xl font-semibold text-[#1d1d1f]">
+            데이터를 불러오는 중입니다...
+          </div>
+          <p className="text-lg text-[#86868b]">잠시만 기다려주세요</p>
+        </div>
+      </div>
+    );
+  }
+
+  // 에러 발생 시
+  if (error) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-white">
+        <div className="text-center">
+          <div className="mb-4 text-2xl font-semibold text-red-500">오류가 발생했습니다</div>
+          <p className="mb-6 text-lg text-[#86868b]">{error}</p>
+          <button
+            onClick={() => navigate('/')}
+            className="cursor-pointer rounded-lg border border-[#1d1d1f] bg-transparent px-6 py-3 text-base font-medium text-[#1d1d1f] transition-all hover:bg-[#1d1d1f] hover:text-white"
+          >
+            다시 검색하기
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  // 데이터가 없을 때
+  if (!apiData) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-white">
+        <div className="text-center">
+          <div className="mb-4 text-2xl font-semibold text-[#1d1d1f]">검색 결과가 없습니다</div>
+          <p className="mb-6 text-lg text-[#86868b]">다시 검색해주세요</p>
+          <button
+            onClick={() => navigate('/')}
+            className="cursor-pointer rounded-lg border border-[#1d1d1f] bg-transparent px-6 py-3 text-base font-medium text-[#1d1d1f] transition-all hover:bg-[#1d1d1f] hover:text-white"
+          >
+            검색 페이지로 이동
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-white">
@@ -195,23 +256,21 @@ export default function DetailPage() {
                 현재 평균 시세 (중고)
               </h3>
               <p className="m-0 text-[2.75rem] font-extrabold text-[#0071e3]">
-                ₩{formatPrice(1250000)}
+                ₩{formatPrice(apiData.summary_info.average_price)}
               </p>
             </div>
-            <div className="grid grid-cols-3 gap-4">
+            <div className="grid grid-cols-2 gap-4">
               <div>
                 <h4 className="m-0 mb-2 text-base font-semibold text-[#86868b]">최고가 매물</h4>
-                <p className="m-0 text-2xl font-bold text-[#1d1d1f]">₩{formatPrice(1400000)}</p>
+                <p className="m-0 text-2xl font-bold text-[#1d1d1f]">
+                  ₩{formatPrice(apiData.summary_info.highest_listing_price)}
+                </p>
               </div>
               <div>
                 <h4 className="m-0 mb-2 text-base font-semibold text-[#86868b]">최저가 매물</h4>
-                <p className="m-0 text-2xl font-bold text-[#1d1d1f]">₩{formatPrice(1050000)}</p>
-              </div>
-              <div>
-                <h4 className="m-0 mb-2 text-base font-semibold text-[#86868b]">
-                  다나와 최저가 (신품)
-                </h4>
-                <p className="m-0 text-2xl font-bold text-[#86868b]">₩{formatPrice(1550000)}</p>
+                <p className="m-0 text-2xl font-bold text-[#1d1d1f]">
+                  ₩{formatPrice(apiData.summary_info.lowest_listing_price)}
+                </p>
               </div>
             </div>
           </div>
@@ -220,7 +279,7 @@ export default function DetailPage() {
             <div className="rounded-xl bg-[#f5f5f7] px-6 py-4">
               <h4 className="m-0 mb-2 text-sm font-semibold text-[#86868b]">분석된 총 매물 수</h4>
               <p className="m-0 text-lg font-semibold">
-                104개{' '}
+                {apiData.summary_info.listing_count}개{' '}
                 <span
                   className="ml-1.5 inline-block h-3.5 w-3.5 cursor-pointer rounded-full bg-[#d2d2d7] text-xs leading-[14px] font-bold text-[#86868b]"
                   title="최근 3일 이내, 거래 완료 제외"
@@ -231,7 +290,7 @@ export default function DetailPage() {
             </div>
             <div className="rounded-xl bg-[#f5f5f7] px-6 py-4">
               <h4 className="m-0 mb-2 text-sm font-semibold text-[#86868b]">데이터 기준일</h4>
-              <p className="m-0 text-lg font-semibold">10월 31일 11:00</p>
+              <p className="m-0 text-lg font-semibold">{apiData.summary_info.data_date}</p>
             </div>
           </div>
         </section>
@@ -247,41 +306,52 @@ export default function DetailPage() {
               지역별 시세 분석
             </h2>
             <div className="flex flex-col gap-6">
-              <div className="rounded-xl bg-[#f5f5f7] p-6">
-                <div className="mb-4 flex items-baseline justify-between">
-                  <h3 className="m-0 text-lg font-semibold text-[#1d1d1f]">
-                    최고 시세 지역 (강남구)
-                  </h3>
-                  <p className="text-xl font-bold whitespace-nowrap">₩{formatPrice(1350000)}</p>
+              {highestDistrict && (
+                <div className="rounded-xl bg-[#f5f5f7] p-6">
+                  <div className="mb-4 flex items-baseline justify-between">
+                    <h3 className="m-0 text-lg font-semibold text-[#1d1d1f]">
+                      최고 시세 지역 ({highestDistrict.emd})
+                    </h3>
+                    <p className="text-xl font-bold whitespace-nowrap">
+                      ₩{formatPrice(highestDistrict.average_price)}
+                    </p>
+                  </div>
+                  <div className="h-2 w-full overflow-hidden rounded bg-[#d2d2d7]">
+                    <div
+                      className="animate-growBar h-full origin-left rounded bg-[#1d1d1f]"
+                      style={{ width: '100%', animation: 'growBar 1s 0.5s ease-out forwards' }}
+                    ></div>
+                  </div>
                 </div>
-                <div className="h-2 w-full overflow-hidden rounded bg-[#d2d2d7]">
-                  <div
-                    className="animate-growBar h-full origin-left rounded bg-[#1d1d1f]"
-                    style={{ width: '100%', animation: 'growBar 1s 0.5s ease-out forwards' }}
-                  ></div>
+              )}
+              {lowestDistrict && (
+                <div className="rounded-xl bg-[#f5f5f7] p-6">
+                  <div className="mb-4 flex items-baseline justify-between">
+                    <h3 className="m-0 text-lg font-semibold text-[#1d1d1f]">
+                      최저 시세 지역 ({lowestDistrict.emd})
+                    </h3>
+                    <p className="text-xl font-bold whitespace-nowrap">
+                      ₩{formatPrice(lowestDistrict.average_price)}
+                    </p>
+                  </div>
+                  <div className="h-2 w-full overflow-hidden rounded bg-[#d2d2d7]">
+                    <div
+                      className="animate-growBar h-full origin-left rounded bg-[#1d1d1f]"
+                      style={{
+                        width: `${(lowestDistrict.average_price / highestDistrict.average_price) * 100}%`,
+                        animation: 'growBar 1s 0.5s ease-out forwards',
+                      }}
+                    ></div>
+                  </div>
                 </div>
-              </div>
-              <div className="rounded-xl bg-[#f5f5f7] p-6">
-                <div className="mb-4 flex items-baseline justify-between">
-                  <h3 className="m-0 text-lg font-semibold text-[#1d1d1f]">
-                    최저 시세 지역 (관악구)
-                  </h3>
-                  <p className="text-xl font-bold whitespace-nowrap">₩{formatPrice(1180000)}</p>
-                </div>
-                <div className="h-2 w-full overflow-hidden rounded bg-[#d2d2d7]">
-                  <div
-                    className="animate-growBar h-full origin-left rounded bg-[#1d1d1f]"
-                    style={{ width: '87.4%', animation: 'growBar 1s 0.5s ease-out forwards' }}
-                  ></div>
-                </div>
-              </div>
+              )}
             </div>
           </section>
 
           {/* 2-2. 시세 변동 그래프 (우측) - SVG로 정갈하게 재구현 */}
           <section className="mb-0">
             <h2 className="mb-10 text-left text-3xl font-semibold tracking-tight">
-              가격 변동 추이 (최근 7주)
+              {district}의 가격 변동 추이 (최근 7주)
             </h2>
             <div className="relative mb-5 box-border rounded-xl bg-[#f5f5f7] p-8">
               <svg viewBox="0 0 600 200" className="h-[200px] w-full">
@@ -331,7 +401,7 @@ export default function DetailPage() {
               {/* X축 레이블 */}
               <div className="flex justify-between px-[60px] pt-2 text-xs text-[#86868b]">
                 {priceHistory.map((point, index) => (
-                  <span key={index}>{point.week}</span>
+                  <span key={index}>{point.period}</span>
                 ))}
               </div>
             </div>
@@ -350,13 +420,13 @@ export default function DetailPage() {
           {/* 3-1. 자치구별 상세 시세 */}
           <section className="mb-0">
             <h2 className="mb-10 text-left text-3xl font-semibold tracking-tight">
-              자치구별 상세 시세
+              읍면동별 상세 시세
             </h2>
             <table className="w-full border-collapse">
               <thead>
                 <tr>
                   <th className="border-b border-[#d2d2d7] py-5 text-left text-sm font-semibold text-[#86868b] uppercase">
-                    자치구
+                    읍면동
                   </th>
                   <th
                     className="cursor-pointer border-b border-[#d2d2d7] py-5 text-left text-sm font-semibold text-[#86868b] uppercase select-none hover:text-[#1d1d1f]"
@@ -403,18 +473,15 @@ export default function DetailPage() {
           {/* 3-2. 최저가 매물 */}
           <section className="mb-0">
             <h2 className="mb-10 text-left text-3xl font-semibold tracking-tight">
-              현재 최저가 매물
+              {district}의 현재 최저가 매물
             </h2>
             <div className="flex flex-col gap-4">
-              {[
-                { price: 1150000, location: `${city} ${district}`, source: '당근마켓' },
-                { price: 1155000, location: `${city} ${district}`, source: '번개장터' },
-                { price: 1160000, location: `${city} ${district}`, source: '중고나라' },
-                { price: 1160000, location: `${city} ${district}`, source: '당근마켓' },
-                { price: 1165000, location: `${city} ${district}`, source: '번개장터' },
-              ].map((listing, index) => (
-                <div
+              {apiData.lowest_price_listings.map((listing, index) => (
+                <a
                   key={index}
+                  href={listing.source_url}
+                  target="_blank"
+                  rel="noopener noreferrer"
                   className="flex cursor-pointer items-center rounded-xl p-4 transition-colors hover:bg-[#f5f5f7]"
                 >
                   <img
@@ -423,13 +490,15 @@ export default function DetailPage() {
                     className="mr-4 h-15 w-15 flex-shrink-0 rounded-lg object-cover"
                   />
                   <div className="flex-grow">
-                    <p className="m-0 mb-1 text-lg font-bold">₩{formatPrice(listing.price)}</p>
-                    <p className="m-0 text-sm text-[#86868b]">{listing.location}</p>
+                    <p className="m-0 mb-1 text-lg font-bold">
+                      ₩{formatPrice(listing.listing_price)}
+                    </p>
+                    <p className="m-0 text-sm text-[#86868b]">{listing.district_detail}</p>
                     <p className="m-0 mt-1 text-xs font-semibold text-[#0071e3]">
                       출처: {listing.source}
                     </p>
                   </div>
-                </div>
+                </a>
               ))}
             </div>
           </section>
