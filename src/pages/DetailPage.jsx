@@ -281,7 +281,7 @@ export default function DetailPage() {
           {/* 2-2. 시세 변동 그래프 (우측) - SVG로 정갈하게 재구현 */}
           <section className="mb-0">
             <h2 className="mb-10 text-left text-3xl font-semibold tracking-tight">
-              가격 변동 추이 (최근 7주)
+              OO동의 가격 변동 추이 (최근 7주)
             </h2>
             <div className="relative mb-5 box-border rounded-xl bg-[#f5f5f7] p-8">
               <svg viewBox="0 0 600 200" className="h-[200px] w-full">
@@ -350,13 +350,13 @@ export default function DetailPage() {
           {/* 3-1. 자치구별 상세 시세 */}
           <section className="mb-0">
             <h2 className="mb-10 text-left text-3xl font-semibold tracking-tight">
-              자치구별 상세 시세
+              읍면동별 상세 시세
             </h2>
             <table className="w-full border-collapse">
               <thead>
                 <tr>
                   <th className="border-b border-[#d2d2d7] py-5 text-left text-sm font-semibold text-[#86868b] uppercase">
-                    자치구
+                    읍면동
                   </th>
                   <th
                     className="cursor-pointer border-b border-[#d2d2d7] py-5 text-left text-sm font-semibold text-[#86868b] uppercase select-none hover:text-[#1d1d1f]"
@@ -403,7 +403,7 @@ export default function DetailPage() {
           {/* 3-2. 최저가 매물 */}
           <section className="mb-0">
             <h2 className="mb-10 text-left text-3xl font-semibold tracking-tight">
-              현재 최저가 매물
+              OO동의 현재 최저가 매물
             </h2>
             <div className="flex flex-col gap-4">
               {[
