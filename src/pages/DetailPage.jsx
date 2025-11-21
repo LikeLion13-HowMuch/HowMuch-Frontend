@@ -225,13 +225,27 @@ export default function DetailPage() {
 
   return (
     <div className="min-h-screen bg-white">
-      <header className="border-b border-[#d2d2d7] p-6">
-        <button
-          onClick={() => navigate('/')}
-          className="cursor-pointer border-none bg-transparent text-base text-[#0071e3] transition-colors hover:text-[#0051a2]"
-        >
-          ← 다시 검색하기
-        </button>
+      {/* 고정 헤더 */}
+      <header className="sticky top-0 z-50 border-b border-[#d2d2d7] bg-white/80 backdrop-blur-md">
+        <div className="mx-auto flex max-w-[1400px] items-center justify-between px-10 py-4">
+          {/* 로고 */}
+          <div
+            className="cursor-pointer text-2xl font-bold text-[#1d1d1f] transition-colors hover:text-[#0071e3]"
+            onClick={() => navigate('/')}
+          >
+            How Much, Apple?
+          </div>
+
+          {/* 네비게이션 */}
+          <nav className="flex items-center gap-8">
+            <button
+              className="cursor-pointer rounded-full border border-[#0071e3] bg-transparent px-5 py-2 text-sm font-medium text-[#0071e3] transition-all hover:bg-[#0071e3] hover:text-white"
+              onClick={() => navigate('/')}
+            >
+              새로운 검색
+            </button>
+          </nav>
+        </div>
       </header>
 
       <div className="mx-auto max-w-[1200px] p-10">
@@ -248,33 +262,44 @@ export default function DetailPage() {
           </p>
         </header>
 
-        {/* 1. 상단 요약 섹션 */}
+        {/* 1. 상단 Hero 섹션 - 가격 정보 통합 */}
         <section className="animate-fadeIn mb-20" style={{ animationDelay: '0.1s' }}>
-          <div className="mb-5 box-border rounded-xl bg-[#f5f5f7] p-8 text-center">
-            <div className="mb-6 border-b border-[#d2d2d7] pb-6">
-              <h3 className="m-0 mb-3 text-xl font-semibold text-[#1d1d1f]">
-                현재 평균 시세 (중고)
-              </h3>
-              <p className="m-0 text-[2.75rem] font-extrabold text-[#0071e3]">
-                ₩{formatPrice(apiData.summary_info.average_price)}
-              </p>
-            </div>
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <h4 className="m-0 mb-2 text-base font-semibold text-[#86868b]">최고가 매물</h4>
-                <p className="m-0 text-2xl font-bold text-[#1d1d1f]">
-                  ₩{formatPrice(apiData.summary_info.highest_listing_price)}
+          {/* 통합된 가격 정보 섹션 */}
+          <div className="mb-8 box-border rounded-2xl bg-gradient-to-br from-[#f5f5f7] to-[#e8e8ed] p-10">
+            <div className="flex items-center justify-center gap-12">
+              {/* 최저가 매물 */}
+              <div className="flex-1 text-center">
+                <h4 className="m-0 mb-3 text-base font-semibold text-[#86868b]">최저가 매물</h4>
+                <p className="m-0 text-3xl font-bold text-[#1d1d1f]">
+                  ₩{formatPrice(apiData.summary_info.lowest_listing_price)}
                 </p>
               </div>
-              <div>
-                <h4 className="m-0 mb-2 text-base font-semibold text-[#86868b]">최저가 매물</h4>
-                <p className="m-0 text-2xl font-bold text-[#1d1d1f]">
-                  ₩{formatPrice(apiData.summary_info.lowest_listing_price)}
+
+              {/* 구분선 */}
+              <div className="h-20 w-px bg-[#d2d2d7]"></div>
+
+              {/* 평균 시세 (강조) */}
+              <div className="flex-1 text-center">
+                <h3 className="m-0 mb-4 text-xl font-semibold text-[#1d1d1f]">평균 시세 (중고)</h3>
+                <p className="m-0 text-5xl font-extrabold text-[#0071e3]">
+                  ₩{formatPrice(apiData.summary_info.average_price)}
+                </p>
+              </div>
+
+              {/* 구분선 */}
+              <div className="h-20 w-px bg-[#d2d2d7]"></div>
+
+              {/* 최고가 매물 */}
+              <div className="flex-1 text-center">
+                <h4 className="m-0 mb-3 text-base font-semibold text-[#86868b]">최고가 매물</h4>
+                <p className="m-0 text-3xl font-bold text-[#1d1d1f]">
+                  ₩{formatPrice(apiData.summary_info.highest_listing_price)}
                 </p>
               </div>
             </div>
           </div>
 
+          {/* 부가 정보 */}
           <div className="grid grid-cols-2 gap-5 text-center">
             <div className="rounded-xl bg-[#f5f5f7] px-6 py-4">
               <h4 className="m-0 mb-2 text-sm font-semibold text-[#86868b]">분석된 총 매물 수</h4>
