@@ -225,13 +225,27 @@ export default function DetailPage() {
 
   return (
     <div className="min-h-screen bg-white">
-      <header className="border-b border-[#d2d2d7] p-6">
-        <button
-          onClick={() => navigate('/')}
-          className="cursor-pointer border-none bg-transparent text-base text-[#0071e3] transition-colors hover:text-[#0051a2]"
-        >
-          ← 다시 검색하기
-        </button>
+      {/* 고정 헤더 */}
+      <header className="sticky top-0 z-50 border-b border-[#d2d2d7] bg-white/80 backdrop-blur-md">
+        <div className="mx-auto flex max-w-[1400px] items-center justify-between px-10 py-4">
+          {/* 로고 */}
+          <div
+            className="cursor-pointer text-2xl font-bold text-[#1d1d1f] transition-colors hover:text-[#0071e3]"
+            onClick={() => navigate('/')}
+          >
+            How Much, Apple?
+          </div>
+
+          {/* 네비게이션 */}
+          <nav className="flex items-center gap-8">
+            <button
+              className="cursor-pointer rounded-full border border-[#0071e3] bg-transparent px-5 py-2 text-sm font-medium text-[#0071e3] transition-all hover:bg-[#0071e3] hover:text-white"
+              onClick={() => navigate('/')}
+            >
+              새로운 검색
+            </button>
+          </nav>
+        </div>
       </header>
 
       <div className="mx-auto max-w-[1200px] p-10">
@@ -248,33 +262,44 @@ export default function DetailPage() {
           </p>
         </header>
 
-        {/* 1. 상단 요약 섹션 */}
+        {/* 1. 상단 Hero 섹션 - 가격 정보 통합 */}
         <section className="animate-fadeIn mb-20" style={{ animationDelay: '0.1s' }}>
-          <div className="mb-5 box-border rounded-xl bg-[#f5f5f7] p-8 text-center">
-            <div className="mb-6 border-b border-[#d2d2d7] pb-6">
-              <h3 className="m-0 mb-3 text-xl font-semibold text-[#1d1d1f]">
-                현재 평균 시세 (중고)
-              </h3>
-              <p className="m-0 text-[2.75rem] font-extrabold text-[#0071e3]">
-                ₩{formatPrice(apiData.summary_info.average_price)}
-              </p>
-            </div>
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <h4 className="m-0 mb-2 text-base font-semibold text-[#86868b]">최고가 매물</h4>
-                <p className="m-0 text-2xl font-bold text-[#1d1d1f]">
-                  ₩{formatPrice(apiData.summary_info.highest_listing_price)}
+          {/* 통합된 가격 정보 섹션 */}
+          <div className="mb-8 box-border rounded-2xl bg-gradient-to-br from-[#f5f5f7] to-[#e8e8ed] p-10">
+            <div className="flex items-center justify-center gap-12">
+              {/* 최저가 매물 */}
+              <div className="flex-1 text-center">
+                <h4 className="m-0 mb-3 text-base font-semibold text-[#86868b]">최저가 매물</h4>
+                <p className="m-0 text-3xl font-bold text-[#1d1d1f]">
+                  ₩{formatPrice(apiData.summary_info.lowest_listing_price)}
                 </p>
               </div>
-              <div>
-                <h4 className="m-0 mb-2 text-base font-semibold text-[#86868b]">최저가 매물</h4>
-                <p className="m-0 text-2xl font-bold text-[#1d1d1f]">
-                  ₩{formatPrice(apiData.summary_info.lowest_listing_price)}
+
+              {/* 구분선 */}
+              <div className="h-20 w-px bg-[#d2d2d7]"></div>
+
+              {/* 평균 시세 (강조) */}
+              <div className="flex-1 text-center">
+                <h3 className="m-0 mb-4 text-xl font-semibold text-[#1d1d1f]">평균 시세 (중고)</h3>
+                <p className="m-0 text-5xl font-extrabold text-[#0071e3]">
+                  ₩{formatPrice(apiData.summary_info.average_price)}
+                </p>
+              </div>
+
+              {/* 구분선 */}
+              <div className="h-20 w-px bg-[#d2d2d7]"></div>
+
+              {/* 최고가 매물 */}
+              <div className="flex-1 text-center">
+                <h4 className="m-0 mb-3 text-base font-semibold text-[#86868b]">최고가 매물</h4>
+                <p className="m-0 text-3xl font-bold text-[#1d1d1f]">
+                  ₩{formatPrice(apiData.summary_info.highest_listing_price)}
                 </p>
               </div>
             </div>
           </div>
 
+          {/* 부가 정보 */}
           <div className="grid grid-cols-2 gap-5 text-center">
             <div className="rounded-xl bg-[#f5f5f7] px-6 py-4">
               <h4 className="m-0 mb-2 text-sm font-semibold text-[#86868b]">분석된 총 매물 수</h4>
@@ -295,182 +320,186 @@ export default function DetailPage() {
           </div>
         </section>
 
-        {/* 2. 상단 2단 대시보드 */}
+        {/* 2. 중단 2단 레이아웃 - 그래프(좌) + 매물 리스트(우) */}
         <div
-          className="animate-fadeIn mb-20 grid grid-cols-[40%_1fr] items-start gap-10"
+          className="animate-fadeIn mb-20 grid grid-cols-[55%_1fr] items-start gap-10"
           style={{ animationDelay: '0.2s' }}
         >
-          {/* 2-1. 핵심 시세 (좌측) */}
-          <section className="mb-0">
-            <h2 className="mb-10 text-left text-3xl font-semibold tracking-tight">
-              지역별 시세 분석
-            </h2>
-            <div className="flex flex-col gap-6">
-              {highestDistrict && (
-                <div className="rounded-xl bg-[#f5f5f7] p-6">
-                  <div className="mb-4 flex items-baseline justify-between">
-                    <h3 className="m-0 text-lg font-semibold text-[#1d1d1f]">
-                      최고 시세 지역 ({highestDistrict.emd})
-                    </h3>
-                    <p className="text-xl font-bold whitespace-nowrap">
-                      ₩{formatPrice(highestDistrict.average_price)}
-                    </p>
-                  </div>
-                  <div className="h-2 w-full overflow-hidden rounded bg-[#d2d2d7]">
-                    <div
-                      className="animate-growBar h-full origin-left rounded bg-[#1d1d1f]"
-                      style={{ width: '100%', animation: 'growBar 1s 0.5s ease-out forwards' }}
-                    ></div>
-                  </div>
+          {/* 2-1. 좌측 컬럼: 가격 변동 추이 + 읍면동별 상세 시세 */}
+          <div className="flex flex-col gap-10">
+            {/* 가격 변동 추이 그래프 */}
+            <section className="mb-0">
+              <h2 className="mb-10 text-left text-3xl font-semibold tracking-tight">
+                {district}의 가격 변동 추이 (최근 7주)
+              </h2>
+              <div className="relative mb-5 box-border rounded-xl bg-[#f5f5f7] p-8">
+                <svg viewBox="0 0 600 200" className="h-[200px] w-full">
+                  {/* 그리드 라인 (Y축 기준) */}
+                  {graphData.yAxisLabels.map((_, idx) => {
+                    const y = 20 + (idx * 140) / 4;
+                    return (
+                      <line
+                        key={idx}
+                        x1="60"
+                        y1={y}
+                        x2="560"
+                        y2={y}
+                        stroke="#d2d2d7"
+                        strokeWidth="1"
+                        strokeDasharray="2,2"
+                      />
+                    );
+                  })}
+
+                  {/* 축 */}
+                  <line x1="60" y1="20" x2="60" y2="160" stroke="#d2d2d7" strokeWidth="1" />
+                  <line x1="60" y1="160" x2="560" y2="160" stroke="#d2d2d7" strokeWidth="1" />
+
+                  {/* Y축 레이블 */}
+                  {graphData.yAxisLabels.map((price, idx) => {
+                    const y = 20 + (idx * 140) / 4;
+                    return (
+                      <text
+                        key={idx}
+                        x="55"
+                        y={y + 5}
+                        textAnchor="end"
+                        fontSize="12"
+                        fill="#86868b"
+                      >
+                        {price / 10000}만
+                      </text>
+                    );
+                  })}
+
+                  {/* 라인과 포인트 */}
+                  <polyline
+                    points={graphData.points.map((p) => `${p.x},${p.y}`).join(' ')}
+                    fill="none"
+                    stroke="#1d1d1f"
+                    strokeWidth="2"
+                  />
+                  {graphData.points.map((point, index) => (
+                    <circle key={index} cx={point.x} cy={point.y} r="4" fill="#1d1d1f" />
+                  ))}
+                </svg>
+
+                {/* X축 레이블 */}
+                <div className="flex justify-between px-[60px] pt-2 text-xs text-[#86868b]">
+                  {priceHistory.map((point, index) => (
+                    <span key={index}>{point.period}</span>
+                  ))}
                 </div>
-              )}
-              {lowestDistrict && (
-                <div className="rounded-xl bg-[#f5f5f7] p-6">
-                  <div className="mb-4 flex items-baseline justify-between">
-                    <h3 className="m-0 text-lg font-semibold text-[#1d1d1f]">
-                      최저 시세 지역 ({lowestDistrict.emd})
-                    </h3>
-                    <p className="text-xl font-bold whitespace-nowrap">
-                      ₩{formatPrice(lowestDistrict.average_price)}
-                    </p>
-                  </div>
-                  <div className="h-2 w-full overflow-hidden rounded bg-[#d2d2d7]">
-                    <div
-                      className="animate-growBar h-full origin-left rounded bg-[#1d1d1f]"
-                      style={{
-                        width: `${(lowestDistrict.average_price / highestDistrict.average_price) * 100}%`,
-                        animation: 'growBar 1s 0.5s ease-out forwards',
-                      }}
-                    ></div>
-                  </div>
-                </div>
-              )}
-            </div>
-          </section>
-
-          {/* 2-2. 시세 변동 그래프 (우측) - SVG로 정갈하게 재구현 */}
-          <section className="mb-0">
-            <h2 className="mb-10 text-left text-3xl font-semibold tracking-tight">
-              {district}의 가격 변동 추이 (최근 7주)
-            </h2>
-            <div className="relative mb-5 box-border rounded-xl bg-[#f5f5f7] p-8">
-              <svg viewBox="0 0 600 200" className="h-[200px] w-full">
-                {/* 그리드 라인 (Y축 기준) */}
-                {graphData.yAxisLabels.map((_, idx) => {
-                  const y = 20 + (idx * 140) / 4;
-                  return (
-                    <line
-                      key={idx}
-                      x1="60"
-                      y1={y}
-                      x2="560"
-                      y2={y}
-                      stroke="#d2d2d7"
-                      strokeWidth="1"
-                      strokeDasharray="2,2"
-                    />
-                  );
-                })}
-
-                {/* 축 */}
-                <line x1="60" y1="20" x2="60" y2="160" stroke="#d2d2d7" strokeWidth="1" />
-                <line x1="60" y1="160" x2="560" y2="160" stroke="#d2d2d7" strokeWidth="1" />
-
-                {/* Y축 레이블 */}
-                {graphData.yAxisLabels.map((price, idx) => {
-                  const y = 20 + (idx * 140) / 4;
-                  return (
-                    <text key={idx} x="55" y={y + 5} textAnchor="end" fontSize="12" fill="#86868b">
-                      {price / 10000}만
-                    </text>
-                  );
-                })}
-
-                {/* 라인과 포인트 */}
-                <polyline
-                  points={graphData.points.map((p) => `${p.x},${p.y}`).join(' ')}
-                  fill="none"
-                  stroke="#1d1d1f"
-                  strokeWidth="2"
-                />
-                {graphData.points.map((point, index) => (
-                  <circle key={index} cx={point.x} cy={point.y} r="4" fill="#1d1d1f" />
-                ))}
-              </svg>
-
-              {/* X축 레이블 */}
-              <div className="flex justify-between px-[60px] pt-2 text-xs text-[#86868b]">
-                {priceHistory.map((point, index) => (
-                  <span key={index}>{point.period}</span>
-                ))}
               </div>
-            </div>
-            <div className="mt-6 rounded-xl bg-[#f5f5f7] p-4 text-center font-medium text-[#1d1d1f]">
-              최근 7주간 약 {Math.abs(priceChange)}% {priceChange > 0 ? '상승' : '하락'}세를 보이고
-              있습니다
-            </div>
-          </section>
-        </div>
+              <div className="mt-6 rounded-xl bg-[#f5f5f7] p-4 text-center font-medium text-[#1d1d1f]">
+                최근 7주간 약{' '}
+                <span
+                  className={`text-center font-bold ${
+                    priceChange > 0 ? 'text-red-500' : 'text-blue-500'
+                  }`}
+                >
+                  {Math.abs(priceChange)}%
+                </span>{' '}
+                <span
+                  className={`font-semibold ${priceChange > 0 ? 'text-red-500' : 'text-blue-500'}`}
+                >
+                  {priceChange > 0 ? '상승' : '하락'}세
+                </span>
+                를 보이고 있습니다
+              </div>
+            </section>
 
-        {/* 3. 하단 2단 대시보드 */}
-        <div
-          className="animate-fadeIn mb-20 grid grid-cols-[60%_1fr] items-start gap-10"
-          style={{ animationDelay: '0.3s' }}
-        >
-          {/* 3-1. 자치구별 상세 시세 */}
-          <section className="mb-0">
-            <h2 className="mb-10 text-left text-3xl font-semibold tracking-tight">
-              읍면동별 상세 시세
-            </h2>
-            <table className="w-full border-collapse">
-              <thead>
-                <tr>
-                  <th className="border-b border-[#d2d2d7] py-5 text-left text-sm font-semibold text-[#86868b] uppercase">
-                    읍면동
-                  </th>
-                  <th
-                    className="cursor-pointer border-b border-[#d2d2d7] py-5 text-left text-sm font-semibold text-[#86868b] uppercase select-none hover:text-[#1d1d1f]"
-                    onClick={() => handleSort('price')}
-                  >
-                    평균가{' '}
-                    <span className="ml-1 inline-block w-4 text-xs text-[#d2d2d7] group-hover:text-[#1d1d1f]">
-                      ▲▼
-                    </span>
-                  </th>
-                  <th
-                    className="cursor-pointer border-b border-[#d2d2d7] py-5 text-left text-sm font-semibold text-[#86868b] uppercase select-none hover:text-[#1d1d1f]"
-                    onClick={() => handleSort('count')}
-                  >
-                    매물 수{' '}
-                    <span className="ml-1 inline-block w-4 text-xs text-[#d2d2d7] group-hover:text-[#1d1d1f]">
-                      ▲▼
-                    </span>
-                  </th>
-                </tr>
-              </thead>
-              <tbody>
-                {sortedDistrictData.map((item, index) => (
-                  <tr
-                    key={index}
-                    className="cursor-pointer transition-colors hover:bg-[#f5f5f7]"
-                    onClick={() => handleDistrictClick(item.district)} // 클릭 시 해당 동으로 리다이레그그
-                  >
-                    <td className="border-b border-[#d2d2d7] py-5 text-left text-base font-semibold">
-                      {item.district}
-                    </td>
-                    <td className="border-b border-[#d2d2d7] py-5 text-left text-base">
-                      ₩{formatPrice(item.average)}
-                    </td>
-                    <td className="border-b border-[#d2d2d7] py-5 text-left text-base">
-                      {item.count}
-                    </td>
+            {/* 읍면동별 상세 시세 (그래프 바로 아래) */}
+            <section className="mb-0">
+              <h2 className="mb-10 text-left text-3xl font-semibold tracking-tight">
+                읍면동별 상세 시세
+              </h2>
+              <table className="w-full border-collapse">
+                <thead>
+                  <tr>
+                    <th className="border-b border-[#d2d2d7] py-5 text-left text-sm font-semibold text-[#86868b] uppercase">
+                      읍면동
+                    </th>
+                    <th
+                      className="cursor-pointer border-b border-[#d2d2d7] py-5 text-left text-sm font-semibold text-[#86868b] uppercase select-none hover:text-[#1d1d1f]"
+                      onClick={() => handleSort('price')}
+                    >
+                      평균가{' '}
+                      <span className="ml-1 inline-block w-4 text-xs text-[#d2d2d7] group-hover:text-[#1d1d1f]">
+                        ▲▼
+                      </span>
+                    </th>
+                    <th
+                      className="cursor-pointer border-b border-[#d2d2d7] py-5 text-left text-sm font-semibold text-[#86868b] uppercase select-none hover:text-[#1d1d1f]"
+                      onClick={() => handleSort('count')}
+                    >
+                      매물 수{' '}
+                      <span className="ml-1 inline-block w-4 text-xs text-[#d2d2d7] group-hover:text-[#1d1d1f]">
+                        ▲▼
+                      </span>
+                    </th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
-          </section>
+                </thead>
+                <tbody>
+                  {sortedDistrictData.map((item, index) => {
+                    // 최고/최저 시세 지역 찾기
+                    const maxPrice = Math.max(...sortedDistrictData.map((d) => d.average));
+                    const minPrice = Math.min(...sortedDistrictData.map((d) => d.average));
+                    const isHighest = item.average === maxPrice;
+                    const isLowest = item.average === minPrice;
 
-          {/* 3-2. 최저가 매물 */}
+                    return (
+                      <tr
+                        key={index}
+                        className={`cursor-pointer transition-all ${
+                          isHighest
+                            ? 'bg-red-50 hover:bg-red-100'
+                            : isLowest
+                              ? 'bg-blue-50 hover:bg-blue-100'
+                              : 'hover:bg-[#f5f5f7]'
+                        }`}
+                        onClick={() => handleDistrictClick(item.district)}
+                      >
+                        <td className="border-b border-[#d2d2d7] py-5 text-left text-base">
+                          <div className="flex items-center gap-2">
+                            <span className={isHighest || isLowest ? 'font-bold' : 'font-semibold'}>
+                              {item.district}
+                            </span>
+                            {isHighest && (
+                              <span className="rounded-full bg-red-500 px-2 py-0.5 text-xs font-bold text-white">
+                                최고가
+                              </span>
+                            )}
+                            {isLowest && (
+                              <span className="rounded-full bg-blue-500 px-2 py-0.5 text-xs font-bold text-white">
+                                최저가
+                              </span>
+                            )}
+                          </div>
+                        </td>
+                        <td
+                          className={`border-b border-[#d2d2d7] py-5 text-left text-base ${
+                            isHighest || isLowest ? 'font-bold' : ''
+                          }`}
+                        >
+                          ₩{formatPrice(item.average)}
+                        </td>
+                        <td
+                          className={`border-b border-[#d2d2d7] py-5 text-left text-base ${
+                            isHighest || isLowest ? 'font-bold' : ''
+                          }`}
+                        >
+                          {item.count}
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </section>
+          </div>
+
+          {/* 2-2. 우측 컬럼: 현재 최저가 매물 */}
           <section className="mb-0">
             <h2 className="mb-10 text-left text-3xl font-semibold tracking-tight">
               {district}의 현재 최저가 매물
