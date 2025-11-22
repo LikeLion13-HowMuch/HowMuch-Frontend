@@ -1,7 +1,30 @@
 /**
- * SearchPage의 폼 데이터를 API 요청 형식으로 변환
- * @param {Object} formData - SearchPage에서 넘어온 state 데이터
- * @returns {Object} - API 요청 body
+ * null, undefined, 빈 문자열("") 필드를 제거하는 유틸 함수
+ */
+const removeNullFields = (obj) => {
+  return Object.fromEntries(
+    Object.entries(obj).filter(([_, v]) => v !== null && v !== '' && v !== undefined),
+  );
+};
+
+/**
+ * 영어 모델명을 → 서버가 인식하는 한국어 모델명으로 변환
+ */
+const modelKoreanMap = {
+  'iPhone 16': '아이폰 16',
+  'iPhone 16 Pro': '아이폰 16 프로',
+  'iPhone 16 Pro Max': '아이폰 16 프로 맥스',
+  'iPhone 15': '아이폰 15',
+  'iPhone 15 Pro': '아이폰 15 프로',
+  'iPhone 15 Pro Max': '아이폰 15 프로 맥스',
+  'iPhone 14': '아이폰 14',
+  'iPhone 14 Pro': '아이폰 14 프로',
+  'iPhone 14 Pro Max': '아이폰 14 프로 맥스',
+  // 필요하면 추가
+};
+
+/**
+ * SearchPage → DetailPage → API Body 변환
  */
 export const mapFormDataToApiRequest = (formData) => {
   const {
@@ -20,7 +43,6 @@ export const mapFormDataToApiRequest = (formData) => {
     location,
   } = formData;
 
-  // 카테고리 매핑
   const productMap = {
     iphone: 'iPhone',
     ipad: 'iPad',
@@ -29,38 +51,41 @@ export const mapFormDataToApiRequest = (formData) => {
     airpods: 'AirPods',
   };
 
+  // 실제 사용할 model 선택
+  const rawModel = model || macbookModel || series || null;
+
+  // 영어 → 한국어 모델명 변환
+  const convertedModel = modelKoreanMap[rawModel] || rawModel;
+
+  // 1) 공통 스펙
+  let spec = {
+    model: convertedModel,
+    storage: storage || null,
+    color: color || null,
+    chip: chipset || null,
+    ram: ram || null,
+    ssd: ssd || null,
+    screen_size: null,
+    size: size || null,
+    material: material || null,
+    connectivity: connection || null,
+    cellular: connection || null,
+    pencil_support: null,
+  };
+
+  // 2) null 제거
+  spec = removeNullFields(spec);
+
+  // 최종 API 요청 body
   return {
-    product: productMap[category] || category,
-    spec: {
-      model: model || macbookModel || null,
-      storage: storage || null,
-      color: color || null,
-      chip: chipset || null,
-      ram: ram || null,
-      screen_size: null, // 현재 프론트에서 미수집
-      size: size || null,
-      material: material || null,
-      connectivity: connection || null,
-      cellular: connection || null, // iPad connectivity
-      pencil_support: null, // 현재 프론트에서 미수집
-    },
-    region: {
+    product: productMap[category],
+
+    spec,
+
+    region: removeNullFields({
       sd: location?.province || null,
       sgg: location?.city || null,
       emd: location?.district || null,
-    },
+    }),
   };
-};
-
-/**
- * API 응답 데이터를 컴포넌트에서 사용하기 쉬운 형태로 변환 (선택적)
- * @param {Object} apiResponse - API 응답 데이터
- * @returns {Object} - 가공된 데이터
- */
-export const mapApiResponseToViewModel = (apiResponse) => {
-  if (!apiResponse || apiResponse.status !== 'success') {
-    throw new Error('Invalid API response');
-  }
-
-  return apiResponse.data;
 };

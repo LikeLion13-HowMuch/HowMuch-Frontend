@@ -1,6 +1,6 @@
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useState, useEffect } from 'react';
-import { getPriceAnalysis, getPriceAnalysisMock } from '../api/priceApi';
+import { getPriceAnalysis } from '../api/priceApi';
 import { mapFormDataToApiRequest } from '../utils/apiMapper';
 
 export default function DetailPage() {
@@ -43,17 +43,32 @@ export default function DetailPage() {
         // SearchPage에서 넘어온 모든 state를 API 요청 형식으로 변환
         const requestData = mapFormDataToApiRequest(location.state);
 
-        // Mock API 호출 (****************************************      나중에 getPriceAnalysis로 교체)
-        const response = await getPriceAnalysisMock(requestData);
+        console.log('📩 requestData:', requestData); // 디버깅용
+
+        // 실제 API 호출
+        const response = await getPriceAnalysis(requestData);
+
+        console.log('📥 API Response:', response);
+
+        console.log('📥 RAW RESPONSE:', response);
+        console.log('📥 response.data:', response?.data);
+        console.log('📥 response.data.data:', response?.data?.data);
+        console.log('📥 response.data.status:', response?.data?.status);
+
+        // response 또는 response.data가 null일 경우 방어 처리
+        if (!response || !response.data) {
+          throw new Error('API returned empty data (response.data is null)');
+        }
 
         setApiData(response.data);
 
         // 지역별 시세 데이터 설정
-        const districtList = response.data.regional_analysis.detail_by_district.map((item) => ({
-          district: item.emd,
-          average: item.average_price,
-          count: item.listing_count,
-        }));
+        const districtList =
+          response.data.regional_analysis?.detail_by_district?.map((item) => ({
+            district: item.emd,
+            average: item.average_price,
+            count: item.listing_count,
+          })) || [];
 
         setDistrictData(districtList);
         setSortedDistrictData(districtList);
@@ -152,11 +167,10 @@ export default function DetailPage() {
 
   // 지역별 최고/최저 시세 계산
   const getHighestAndLowestDistrict = () => {
-    if (!apiData?.regional_analysis?.detail_by_district) {
+    const districts = apiData?.regional_analysis?.detail_by_district;
+    if (!districts || districts.length === 0) {
       return { highest: null, lowest: null };
     }
-
-    const districts = apiData.regional_analysis.detail_by_district;
 
     const highest = districts.reduce(
       (max, district) => (district.average_price > max.average_price ? district : max),
@@ -442,7 +456,6 @@ export default function DetailPage() {
                 </thead>
                 <tbody>
                   {sortedDistrictData.map((item, index) => {
-                    // 최고/최저 시세 지역 찾기
                     const maxPrice = Math.max(...sortedDistrictData.map((d) => d.average));
                     const minPrice = Math.min(...sortedDistrictData.map((d) => d.average));
                     const isHighest = item.average === maxPrice;
@@ -533,9 +546,30 @@ export default function DetailPage() {
           </section>
         </div>
 
-        <footer className="mt-25 text-center text-[#86868b] opacity-80">
-          <p>{/* footer는 아직 빈칸 */}</p>
-        </footer>
+        {/* 3. 지역별 시세 비교 */}
+        <section className="animate-fadeIn mb-20" style={{ animationDelay: '0.3s' }}>
+          <h2 className="mb-10 text-left text-3xl font-semibold tracking-tight">
+            {city}의 지역별 시세 비교
+          </h2>
+          <div className="grid grid-cols-2 gap-5">
+            <div className="rounded-xl bg-red-50 p-6">
+              <h4 className="m-0 mb-3 text-lg font-semibold text-red-500">
+                최고가 지역: {highestDistrict?.emd || '-'}
+              </h4>
+              <p className="m-0 text-2xl font-bold text-[#1d1d1f]">
+                {highestDistrict ? `₩${formatPrice(highestDistrict.average_price)}` : '-'}
+              </p>
+            </div>
+            <div className="rounded-xl bg-blue-50 p-6">
+              <h4 className="m-0 mb-3 text-lg font-semibold text-blue-500">
+                최저가 지역: {lowestDistrict?.emd || '-'}
+              </h4>
+              <p className="m-0 text-2xl font-bold text-[#1d1d1f]">
+                {lowestDistrict ? `₩${formatPrice(lowestDistrict.average_price)}` : '-'}
+              </p>
+            </div>
+          </div>
+        </section>
       </div>
     </div>
   );

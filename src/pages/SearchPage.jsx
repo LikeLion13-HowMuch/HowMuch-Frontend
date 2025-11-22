@@ -273,8 +273,8 @@ export default function SearchPage() {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (!selectedCategory || !selectedProvince || !selectedCity || !selectedDistrict) {
-      alert('카테고리와 모든 지역 정보를 선택해주세요.');
+    if (!selectedCategory) {
+      alert('카테고리를 선택해주세요.');
       return;
     }
 
@@ -659,7 +659,6 @@ export default function SearchPage() {
                     <select
                       id="province-select"
                       className="w-full cursor-pointer appearance-none rounded-lg border border-[#d2d2d7] bg-transparent py-4 pr-10 pl-5 text-base text-[#1d1d1f] transition-all focus:border-[#0071e3] focus:shadow-[0_0_0_4px_rgba(0,113,227,0.15)] focus:outline-none [&:invalid]:text-[#6e6e73]"
-                      required
                       value={selectedProvince}
                       onChange={(e) => setSelectedProvince(e.target.value)}
                       disabled={isRegionLoading || !!regionError}
@@ -679,7 +678,6 @@ export default function SearchPage() {
                     <select
                       id="city-select"
                       className="w-full cursor-pointer appearance-none rounded-lg border border-[#d2d2d7] bg-transparent py-4 pr-10 pl-5 text-base text-[#1d1d1f] transition-all focus:border-[#0071e3] focus:shadow-[0_0_0_4px_rgba(0,113,227,0.15)] focus:outline-none [&:invalid]:text-[#6e6e73]"
-                      required
                       value={selectedCity}
                       onChange={(e) => setSelectedCity(e.target.value)}
                       disabled={!selectedProvince || isRegionLoading || !!regionError}
@@ -699,7 +697,6 @@ export default function SearchPage() {
                     <select
                       id="district-select"
                       className="w-full cursor-pointer appearance-none rounded-lg border border-[#d2d2d7] bg-transparent py-4 pr-10 pl-5 text-base text-[#1d1d1f] transition-all focus:border-[#0071e3] focus:shadow-[0_0_0_4px_rgba(0,113,227,0.15)] focus:outline-none [&:invalid]:text-[#6e6e73]"
-                      required
                       value={selectedDistrict}
                       onChange={(e) => setSelectedDistrict(e.target.value)}
                       disabled={!selectedCity || isRegionLoading || !!regionError}
