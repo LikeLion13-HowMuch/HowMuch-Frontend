@@ -14,7 +14,7 @@ export default function SearchPage() {
   const [selectedMacbookModel, setSelectedMacbookModel] = useState('');
   const [selectedSize, setSelectedSize] = useState('');
   const [selectedMaterial, setSelectedMaterial] = useState('');
-  const [selectedProvince, setSelectedProvince] = useState('');
+  const [selectedProvince, setSelectedProvince] = useState('서울특별시');
   const [selectedCity, setSelectedCity] = useState('');
   const [selectedDistrict, setSelectedDistrict] = useState('');
   const [regionData, setRegionData] = useState([]);
@@ -99,7 +99,7 @@ export default function SearchPage() {
   }, []);
 
   const resetRegionSelections = () => {
-    setSelectedProvince('');
+    setSelectedProvince('서울특별시');
     setSelectedCity('');
     setSelectedDistrict('');
   };
@@ -667,7 +667,7 @@ export default function SearchPage() {
                       className="w-full cursor-pointer appearance-none rounded-lg border border-[#d2d2d7] bg-transparent py-4 pr-10 pl-5 text-base text-[#1d1d1f] transition-all focus:border-[#0071e3] focus:shadow-[0_0_0_4px_rgba(0,113,227,0.15)] focus:outline-none [&:invalid]:text-[#6e6e73]"
                       value={selectedProvince}
                       onChange={(e) => setSelectedProvince(e.target.value)}
-                      disabled={isRegionLoading || !!regionError}
+                      disabled={true}
                     >
                       <option value="" disabled hidden>
                         시 / 도
