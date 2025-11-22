@@ -11,6 +11,10 @@ const removeNullFields = (obj) => {
  * 영어 모델명을 → 서버가 인식하는 한국어 모델명으로 변환
  */
 const modelKoreanMap = {
+  'iPhone 17 Pro Max': '아이폰 17 프로 맥스',
+  'iPhone 17 Pro': '아이폰 17 프로',
+  'iPhone 17': '아이폰 17',
+  'iPhone Air': '아이폰 에어',
   'iPhone 16': '아이폰 16',
   'iPhone 16 Pro': '아이폰 16 프로',
   'iPhone 16 Pro Max': '아이폰 16 프로 맥스',

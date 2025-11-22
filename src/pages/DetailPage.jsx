@@ -344,7 +344,9 @@ export default function DetailPage() {
             {/* 가격 변동 추이 그래프 */}
             <section className="mb-0">
               <h2 className="mb-10 text-left text-3xl font-semibold tracking-tight">
-                {district}의 가격 변동 추이 (최근 7주)
+                {district
+                  ? `${district}의 가격 변동 추이 (최근 7주)`
+                  : `${city}의 가격 변동 추이 (최근 7주)`}
               </h2>
               <div className="relative mb-5 box-border rounded-xl bg-[#f5f5f7] p-8">
                 <svg viewBox="0 0 600 200" className="h-[200px] w-full">
@@ -515,7 +517,7 @@ export default function DetailPage() {
           {/* 2-2. 우측 컬럼: 현재 최저가 매물 */}
           <section className="mb-0">
             <h2 className="mb-10 text-left text-3xl font-semibold tracking-tight">
-              {district}의 현재 최저가 매물
+              {district ? `${district}의 현재 최저가 매물` : `${city}의 현재 최저가 매물`}
             </h2>
             <div className="flex flex-col gap-4">
               {apiData.lowest_price_listings.map((listing, index) => (

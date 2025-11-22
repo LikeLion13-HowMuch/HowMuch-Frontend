@@ -202,19 +202,33 @@ export default function SearchPage() {
   };
 
   // deviceOptions가 로드되면 검색용 아이템 생성
-  const searchItemsByCategory = useMemo(
-    () => (deviceOptions ? buildSearchItemsByCategory(deviceOptions) : {}),
-    [deviceOptions],
-  );
+  const searchItemsByCategory = useMemo(() => {
+    console.log('📦 deviceOptions:', deviceOptions);
+    const result = deviceOptions ? buildSearchItemsByCategory(deviceOptions) : {};
+    console.log('📦 searchItemsByCategory result:', result);
+    return result;
+  }, [deviceOptions]);
 
   useEffect(() => {
+    console.log('🔍 useEffect triggered');
+    console.log('🔍 selectedCategory:', selectedCategory);
+    console.log('🔍 searchItemsByCategory:', searchItemsByCategory);
+
     if (!selectedCategory) {
       setFilteredModels([]);
       return;
     }
 
     const initialItems = searchItemsByCategory[selectedCategory] ?? [];
-    setFilteredModels(initialItems.slice(0, 10));
+    console.log('🔍 initialItems:', initialItems);
+    console.log('🔍 initialItems.length:', initialItems.length);
+
+    if (initialItems.length > 0) {
+      setFilteredModels(initialItems.slice(0, 10));
+    } else {
+      // searchItemsByCategory가 아직 준비되지 않았으면 빈 배열 설정
+      setFilteredModels([]);
+    }
   }, [selectedCategory, searchItemsByCategory]);
 
   const handleCategoryChange = (e) => {
@@ -232,8 +246,8 @@ export default function SearchPage() {
     setSelectedMaterial('');
     setSelectedMacbookModel('');
     setSearchQuery('');
-    setFilteredModels([]);
     setIsSearchFocused(false);
+    // filteredModels는 useEffect에서 자동으로 설정됨
   };
 
   const handleSearchChange = (e) => {
