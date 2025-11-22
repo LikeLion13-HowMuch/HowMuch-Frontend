@@ -11,9 +11,6 @@ const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000
  * @returns {Promise<Object>} - API 응답 데이터
  */
 export const getPriceAnalysis = async (requestData) => {
-  // ← 여기!
-  console.log('📤 실제 프런트가 서버에 보내는 JSON =', JSON.stringify(requestData, null, 2));
-
   try {
     const response = await axios.post(`${API_BASE_URL}/v1/products/price`, requestData, {
       headers: {

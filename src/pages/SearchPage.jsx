@@ -203,25 +203,17 @@ export default function SearchPage() {
 
   // deviceOptions가 로드되면 검색용 아이템 생성
   const searchItemsByCategory = useMemo(() => {
-    console.log('📦 deviceOptions:', deviceOptions);
     const result = deviceOptions ? buildSearchItemsByCategory(deviceOptions) : {};
-    console.log('📦 searchItemsByCategory result:', result);
     return result;
   }, [deviceOptions]);
 
   useEffect(() => {
-    console.log('🔍 useEffect triggered');
-    console.log('🔍 selectedCategory:', selectedCategory);
-    console.log('🔍 searchItemsByCategory:', searchItemsByCategory);
-
     if (!selectedCategory) {
       setFilteredModels([]);
       return;
     }
 
     const initialItems = searchItemsByCategory[selectedCategory] ?? [];
-    console.log('🔍 initialItems:', initialItems);
-    console.log('🔍 initialItems.length:', initialItems.length);
 
     if (initialItems.length > 0) {
       setFilteredModels(initialItems.slice(0, 10));

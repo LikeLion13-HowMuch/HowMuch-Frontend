@@ -43,17 +43,8 @@ export default function DetailPage() {
         // SearchPage에서 넘어온 모든 state를 API 요청 형식으로 변환
         const requestData = mapFormDataToApiRequest(location.state);
 
-        console.log('📩 requestData:', requestData); // 디버깅용
-
         // 실제 API 호출
         const response = await getPriceAnalysis(requestData);
-
-        console.log('📥 API Response:', response);
-
-        console.log('📥 RAW RESPONSE:', response);
-        console.log('📥 response.data:', response?.data);
-        console.log('📥 response.data.data:', response?.data?.data);
-        console.log('📥 response.data.status:', response?.data?.status);
 
         // response 또는 response.data가 null일 경우 방어 처리
         if (!response || !response.data) {
