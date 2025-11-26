@@ -26,6 +26,7 @@ export default function SearchPage() {
   const [searchQuery, setSearchQuery] = useState('');
   const [filteredModels, setFilteredModels] = useState([]);
   const [isSearchFocused, setIsSearchFocused] = useState(false);
+  const [hasTriedSubmit, setHasTriedSubmit] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -239,6 +240,8 @@ export default function SearchPage() {
     setSelectedMacbookModel('');
     setSearchQuery('');
     setIsSearchFocused(false);
+    // 카테고리 변경 시 경고 상태 초기화
+    setHasTriedSubmit(false);
     // filteredModels는 useEffect에서 자동으로 설정됨
   };
 
@@ -275,6 +278,8 @@ export default function SearchPage() {
 
     setSearchQuery(value);
     setIsSearchFocused(false);
+    // 제품 선택 시 경고 메시지 숨김
+    setHasTriedSubmit(false);
   };
 
   const handleSubmit = (e) => {
@@ -283,6 +288,27 @@ export default function SearchPage() {
       alert('카테고리를 선택해주세요.');
       return;
     }
+
+    // 제품 선택 여부 확인
+    const hasPrimarySelection = (() => {
+      switch (selectedCategory) {
+        case 'macbook':
+          return Boolean(selectedMacbookModel);
+        case 'watch':
+          return Boolean(selectedSeries);
+        default:
+          return Boolean(selectedModel);
+      }
+    })();
+
+    if (!hasPrimarySelection) {
+      // 제품이 선택되지 않았으면 제출하지 않고 경고 상태 활성화
+      setHasTriedSubmit(true);
+      return;
+    }
+
+    // 제출 성공 시 경고 상태 초기화
+    setHasTriedSubmit(false);
 
     // 상세 시세 페이지로 이동
     navigate('/detail', {
@@ -604,7 +630,7 @@ export default function SearchPage() {
   return (
     <div className="box-border flex min-h-screen w-full items-center justify-center py-24 text-center">
       <div className="animate-fadeIn w-full max-w-[600px] p-5">
-        <h1 className="mb-6 font-['Inter'] text-[3.5rem] font-extrabold">How Much, Apple?</h1>
+        <h1 className="mb-6 font-['Inter'] text-[3.5rem] font-extrabold">How Much, Apple</h1>
         <p className="mb-14 text-lg leading-relaxed text-[#86868b]">
           당신의 중고 Apple 제품, 제 가치를 알고 있나요?
           <br /> 데이터가 알려주는 가장 정확한 현재의 가치.
@@ -635,6 +661,28 @@ export default function SearchPage() {
                 {renderSearchInput({ integrated: true })}
               </div>
             </div>
+            {(() => {
+              const hasPrimarySelection = (() => {
+                switch (selectedCategory) {
+                  case 'macbook':
+                    return Boolean(selectedMacbookModel);
+                  case 'watch':
+                    return Boolean(selectedSeries);
+                  default:
+                    return Boolean(selectedModel);
+                }
+              })();
+
+              // 제출을 시도했고 제품이 선택되지 않았을 때만 경고 메시지 표시
+              if (hasTriedSubmit && !hasPrimarySelection && selectedCategory) {
+                return (
+                  <p className="mt-1 text-left text-sm text-red-500">
+                    검색하고 싶은 제품을 입력해주세요.
+                  </p>
+                );
+              }
+              return null;
+            })()}
           </div>
 
           <div id="dynamic-options-container" className="flex w-full flex-col gap-5">
