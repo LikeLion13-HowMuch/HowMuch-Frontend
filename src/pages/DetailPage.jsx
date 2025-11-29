@@ -1,13 +1,15 @@
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useState, useEffect } from 'react';
-import { getPriceAnalysis } from '../api/priceApi';
-import { mapFormDataToApiRequest } from '../utils/apiMapper';
+// import { getPriceAnalysis } from '../api/priceApi';
+import { getPriceAnalysisMock } from '../api/priceApi';
+// import { mapFormDataToApiRequest } from '../utils/apiMapper';
+import LowestPriceListings from '../components/LowestPriceListings';
 
 export default function DetailPage() {
   const location = useLocation();
   const navigate = useNavigate();
-  const [sortColumn, setSortColumn] = useState(null);
-  const [sortDirection, setSortDirection] = useState('asc');
+  const [sortColumn, setSortColumn] = useState('price'); // 초기값: 평균가 정렬
+  const [sortDirection, setSortDirection] = useState('asc'); // 초기값: 오름차순 (최저가순)
   const [districtData, setDistrictData] = useState([]);
   const [sortedDistrictData, setSortedDistrictData] = useState([]);
 
@@ -23,11 +25,44 @@ export default function DetailPage() {
     return price.toLocaleString('ko-KR');
   };
 
+  // 데이터 정렬 함수
+  const sortData = (data, sortColumn = null, sortDirection = 'asc') => {
+    if (!data || data.length === 0) return [];
+
+    // 정렬 기준이 없으면 원본 순서 유지
+    if (!sortColumn) {
+      return [...data];
+    }
+
+    // 정렬 수행
+    const sorted = [...data].sort((a, b) => {
+      if (sortColumn === 'price') {
+        return sortDirection === 'asc' ? a.average - b.average : b.average - a.average;
+      } else if (sortColumn === 'count') {
+        return sortDirection === 'asc' ? a.count - b.count : b.count - a.count;
+      }
+      return 0;
+    });
+
+    return sorted;
+  };
+
   // 지역 정보 추출
   const locationInfo = location.state?.location || {}; // 직전 페이지인 searchpage에서 넘어온 state!
   const province = locationInfo.province || '';
   const city = locationInfo.city || '';
   const district = locationInfo.district || '';
+
+  // 지역 표시명 생성 (서울특별시만 선택했을 때 "서울"로 표시)
+  const getLocationDisplayName = () => {
+    if (district) return district;
+    if (city) return city;
+    // province만 있는 경우 (예: 서울특별시 -> 서울)
+    if (province === '서울특별시') return '서울';
+    return province;
+  };
+
+  const locationDisplayName = getLocationDisplayName();
 
   // 모델 정보 추출
   const modelName = apiData?.summary_info?.model_name || location.state?.model || 'Apple 제품';
@@ -40,11 +75,51 @@ export default function DetailPage() {
       setError(null);
 
       try {
+        // ===== API 연결 부분 임시 주석처리 =====
         // SearchPage에서 넘어온 모든 state를 API 요청 형식으로 변환
-        const requestData = mapFormDataToApiRequest(location.state);
+        // const requestData = mapFormDataToApiRequest(location.state);
 
         // 실제 API 호출
-        const response = await getPriceAnalysis(requestData);
+        // const response = await getPriceAnalysis(requestData);
+
+        // response 또는 response.data가 null일 경우 방어 처리
+        // if (!response || !response.data) {
+        //   throw new Error('API returned empty data (response.data is null)');
+        // }
+
+        // setApiData(response.data);
+
+        // 지역별 시세 데이터 설정
+        // const districtList =
+        //   response.data.regional_analysis?.detail_by_district?.map((item) => ({
+        //     district: item.emd,
+        //     average: item.average_price,
+        //     count: item.listing_count,
+        //   })) || [];
+
+        // setDistrictData(districtList);
+        // setSortedDistrictData(districtList);
+        // ===== API 연결 부분 끝 =====
+
+        // ===== 더미 데이터 사용 =====
+        // 더미 요청 데이터 생성 (location.state 기반)
+        const dummyRequestData = {
+          spec: {
+            model:
+              location.state?.model ||
+              location.state?.macbookModel ||
+              location.state?.series ||
+              'iPhone 16 Pro',
+          },
+          region: {
+            sd: location.state?.location?.province || '서울특별시',
+            sgg: location.state?.location?.city || '관악구',
+            emd: location.state?.location?.district || '신림동',
+          },
+        };
+
+        // 더미 API 호출
+        const response = await getPriceAnalysisMock(dummyRequestData);
 
         // response 또는 response.data가 null일 경우 방어 처리
         if (!response || !response.data) {
@@ -62,17 +137,23 @@ export default function DetailPage() {
           })) || [];
 
         setDistrictData(districtList);
-        setSortedDistrictData(districtList);
+        // 초기 로드 시 평균가 기준 오름차순 정렬 (최저가순)
+        const initialSorted = sortData(districtList, 'price', 'asc');
+        setSortedDistrictData(initialSorted);
+        // ===== 더미 데이터 사용 끝 =====
       } catch (err) {
-        console.error('API 호출 실패:', err);
+        console.error('데이터 로드 실패:', err);
         setError('데이터를 불러오는데 실패했습니다. 다시 시도해주세요.');
       } finally {
         setIsLoading(false);
       }
     };
 
-    // location.state가 있을 때만 API 호출
+    // location.state가 있을 때만 데이터 로드
     if (location.state) {
+      fetchPriceData();
+    } else {
+      // location.state가 없어도 더미 데이터로 테스트 가능하도록
       fetchPriceData();
     }
   }, [location.state]);
@@ -87,15 +168,7 @@ export default function DetailPage() {
     setSortColumn(column);
     setSortDirection(newDirection);
 
-    const sorted = [...districtData].sort((a, b) => {
-      if (column === 'price') {
-        return newDirection === 'asc' ? a.average - b.average : b.average - a.average;
-      } else if (column === 'count') {
-        return newDirection === 'asc' ? a.count - b.count : b.count - a.count;
-      }
-      return 0;
-    });
-
+    const sorted = sortData(districtData, column, newDirection);
     setSortedDistrictData(sorted);
   };
 
@@ -113,11 +186,32 @@ export default function DetailPage() {
     });
   };
 
+  const calculatePriceChangeRate = () => {
+    if (!priceHistory || priceHistory.length < 2) return 0;
+    const firstPrice = priceHistory[0]?.price;
+    const lastPrice = priceHistory[priceHistory.length - 1]?.price;
+    if (!firstPrice) return 0;
+    const diff = lastPrice - firstPrice;
+    return Number(((diff / firstPrice) * 100).toFixed(1));
+  };
+
   // 가격 추이 그래프 계산 - 정갈한 그래프를 위한 정확한 계산
   const calculateGraphPoints = () => {
-    const maxPrice = Math.max(...priceHistory.map((d) => d.price));
-    const minPrice = Math.min(...priceHistory.map((d) => d.price));
-    const range = maxPrice - minPrice;
+    if (!priceHistory.length) {
+      return {
+        points: [],
+        maxPrice: 0,
+        minPrice: 0,
+        range: 0,
+        padding: 0,
+        yAxisLabels: [0, 0, 0, 0, 0],
+      };
+    }
+
+    const priceValues = priceHistory.map((d) => d.price);
+    const maxPrice = Math.max(...priceValues);
+    const minPrice = Math.min(...priceValues);
+    const range = maxPrice - minPrice || maxPrice || 1;
     const padding = range * 0.1; // 상하 여백 추가
 
     // SVG 좌표 계산 (viewBox: 0 0 600 200)
@@ -136,7 +230,8 @@ export default function DetailPage() {
       const y = graphArea.top + (100 - percentage) * (graphArea.height / 100);
 
       // X 좌표 계산
-      const x = graphArea.left + (index / (priceHistory.length - 1)) * graphArea.width;
+      const denominator = priceHistory.length > 1 ? priceHistory.length - 1 : 1;
+      const x = graphArea.left + (index / denominator) * graphArea.width;
 
       return { ...point, x, y };
     });
@@ -153,8 +248,8 @@ export default function DetailPage() {
 
   const graphData = calculateGraphPoints();
 
-  // 최신 가격 대비 하락률 계산
-  const priceChange = apiData?.price_trend?.change_rate || 0;
+  // 최신 가격 대비 하락률 계산 (프론트 계산)
+  const priceChange = calculatePriceChangeRate();
 
   // 지역별 최고/최저 시세 계산
   const getHighestAndLowestDistrict = () => {
@@ -335,9 +430,7 @@ export default function DetailPage() {
             {/* 가격 변동 추이 그래프 */}
             <section className="mb-0">
               <h2 className="mb-10 text-left text-3xl font-semibold tracking-tight">
-                {district
-                  ? `${district}의 가격 변동 추이 (최근 7주)`
-                  : `${city}의 가격 변동 추이 (최근 7주)`}
+                {locationDisplayName}의 가격 변동 추이 (최근 {priceHistory.length}주)
               </h2>
               <div className="relative mb-5 box-border rounded-xl bg-[#f5f5f7] p-8">
                 <svg viewBox="0 0 600 200" className="h-[200px] w-full">
@@ -399,18 +492,28 @@ export default function DetailPage() {
                 </div>
               </div>
               <div className="mt-6 rounded-xl bg-[#f5f5f7] p-4 text-center font-medium text-[#1d1d1f]">
-                최근 7주간 약{' '}
+                최근 {priceHistory.length}주간 약{' '}
                 <span
                   className={`text-center font-bold ${
-                    priceChange > 0 ? 'text-red-500' : 'text-blue-500'
+                    priceChange > 0
+                      ? 'text-red-500'
+                      : priceChange < 0
+                        ? 'text-blue-500'
+                        : 'text-[#1d1d1f]'
                   }`}
                 >
                   {Math.abs(priceChange)}%
                 </span>{' '}
                 <span
-                  className={`font-semibold ${priceChange > 0 ? 'text-red-500' : 'text-blue-500'}`}
+                  className={`font-semibold ${
+                    priceChange > 0
+                      ? 'text-red-500'
+                      : priceChange < 0
+                        ? 'text-blue-500'
+                        : 'text-[#1d1d1f]'
+                  }`}
                 >
-                  {priceChange > 0 ? '상승' : '하락'}세
+                  {priceChange > 0 ? '상승' : priceChange < 0 ? '하락' : '변동 없음'}세
                 </span>
                 를 보이고 있습니다
               </div>
@@ -449,10 +552,12 @@ export default function DetailPage() {
                 </thead>
                 <tbody>
                   {sortedDistrictData.map((item, index) => {
-                    const maxPrice = Math.max(...sortedDistrictData.map((d) => d.average));
-                    const minPrice = Math.min(...sortedDistrictData.map((d) => d.average));
-                    const isHighest = item.average === maxPrice;
+                    // 전체 데이터에서 최저가와 최고가 찾기
+                    const maxPrice = Math.max(...districtData.map((d) => d.average));
+                    const minPrice = Math.min(...districtData.map((d) => d.average));
+                    // 현재 항목이 최저가인지 최고가인지 판단
                     const isLowest = item.average === minPrice;
+                    const isHighest = item.average === maxPrice && item.average !== minPrice;
 
                     return (
                       <tr
@@ -506,63 +611,13 @@ export default function DetailPage() {
           </div>
 
           {/* 2-2. 우측 컬럼: 현재 최저가 매물 */}
-          <section className="mb-0">
-            <h2 className="mb-10 text-left text-3xl font-semibold tracking-tight">
-              {district ? `${district}의 현재 최저가 매물` : `${city}의 현재 최저가 매물`}
-            </h2>
-            <div className="flex flex-col gap-4">
-              {apiData.lowest_price_listings.map((listing, index) => (
-                <a
-                  key={index}
-                  href={listing.source_url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex cursor-pointer items-center rounded-xl p-4 transition-colors hover:bg-[#f5f5f7]"
-                >
-                  <img
-                    src="/iphone.jpeg"
-                    alt="상품 이미지"
-                    className="mr-4 h-15 w-15 flex-shrink-0 rounded-lg object-cover"
-                  />
-                  <div className="flex-grow">
-                    <p className="m-0 mb-1 text-lg font-bold">
-                      ₩{formatPrice(listing.listing_price)}
-                    </p>
-                    <p className="m-0 text-sm text-[#86868b]">{listing.district_detail}</p>
-                    <p className="m-0 mt-1 text-xs font-semibold text-[#0071e3]">
-                      출처: {listing.source}
-                    </p>
-                  </div>
-                </a>
-              ))}
-            </div>
-          </section>
+          <LowestPriceListings
+            listings={apiData?.lowest_price_listings || []}
+            district={district}
+            city={city}
+            province={province}
+          />
         </div>
-
-        {/* 3. 지역별 시세 비교 */}
-        <section className="animate-fadeIn mb-20" style={{ animationDelay: '0.3s' }}>
-          <h2 className="mb-10 text-left text-3xl font-semibold tracking-tight">
-            {city}의 지역별 시세 비교
-          </h2>
-          <div className="grid grid-cols-2 gap-5">
-            <div className="rounded-xl bg-red-50 p-6">
-              <h4 className="m-0 mb-3 text-lg font-semibold text-red-500">
-                최고가 지역: {highestDistrict?.emd || '-'}
-              </h4>
-              <p className="m-0 text-2xl font-bold text-[#1d1d1f]">
-                {highestDistrict ? `₩${formatPrice(highestDistrict.average_price)}` : '-'}
-              </p>
-            </div>
-            <div className="rounded-xl bg-blue-50 p-6">
-              <h4 className="m-0 mb-3 text-lg font-semibold text-blue-500">
-                최저가 지역: {lowestDistrict?.emd || '-'}
-              </h4>
-              <p className="m-0 text-2xl font-bold text-[#1d1d1f]">
-                {lowestDistrict ? `₩${formatPrice(lowestDistrict.average_price)}` : '-'}
-              </p>
-            </div>
-          </div>
-        </section>
       </div>
     </div>
   );
