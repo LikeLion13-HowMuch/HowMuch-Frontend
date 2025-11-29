@@ -14,7 +14,7 @@ export default function SearchPage() {
   const [selectedMacbookModel, setSelectedMacbookModel] = useState('');
   const [selectedSize, setSelectedSize] = useState('');
   const [selectedMaterial, setSelectedMaterial] = useState('');
-  const [selectedProvince, setSelectedProvince] = useState('');
+  const [selectedProvince, setSelectedProvince] = useState('서울특별시');
   const [selectedCity, setSelectedCity] = useState('');
   const [selectedDistrict, setSelectedDistrict] = useState('');
   const [regionData, setRegionData] = useState([]);
@@ -26,6 +26,7 @@ export default function SearchPage() {
   const [searchQuery, setSearchQuery] = useState('');
   const [filteredModels, setFilteredModels] = useState([]);
   const [isSearchFocused, setIsSearchFocused] = useState(false);
+  const [hasTriedSubmit, setHasTriedSubmit] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -99,7 +100,7 @@ export default function SearchPage() {
   }, []);
 
   const resetRegionSelections = () => {
-    setSelectedProvince('');
+    setSelectedProvince('서울특별시');
     setSelectedCity('');
     setSelectedDistrict('');
   };
@@ -202,10 +203,10 @@ export default function SearchPage() {
   };
 
   // deviceOptions가 로드되면 검색용 아이템 생성
-  const searchItemsByCategory = useMemo(
-    () => (deviceOptions ? buildSearchItemsByCategory(deviceOptions) : {}),
-    [deviceOptions],
-  );
+  const searchItemsByCategory = useMemo(() => {
+    const result = deviceOptions ? buildSearchItemsByCategory(deviceOptions) : {};
+    return result;
+  }, [deviceOptions]);
 
   useEffect(() => {
     if (!selectedCategory) {
@@ -214,7 +215,13 @@ export default function SearchPage() {
     }
 
     const initialItems = searchItemsByCategory[selectedCategory] ?? [];
-    setFilteredModels(initialItems.slice(0, 10));
+
+    if (initialItems.length > 0) {
+      setFilteredModels(initialItems.slice(0, 10));
+    } else {
+      // searchItemsByCategory가 아직 준비되지 않았으면 빈 배열 설정
+      setFilteredModels([]);
+    }
   }, [selectedCategory, searchItemsByCategory]);
 
   const handleCategoryChange = (e) => {
@@ -232,8 +239,10 @@ export default function SearchPage() {
     setSelectedMaterial('');
     setSelectedMacbookModel('');
     setSearchQuery('');
-    setFilteredModels([]);
     setIsSearchFocused(false);
+    // 카테고리 변경 시 경고 상태 초기화
+    setHasTriedSubmit(false);
+    // filteredModels는 useEffect에서 자동으로 설정됨
   };
 
   const handleSearchChange = (e) => {
@@ -269,14 +278,37 @@ export default function SearchPage() {
 
     setSearchQuery(value);
     setIsSearchFocused(false);
+    // 제품 선택 시 경고 메시지 숨김
+    setHasTriedSubmit(false);
   };
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (!selectedCategory || !selectedProvince || !selectedCity || !selectedDistrict) {
-      alert('카테고리와 모든 지역 정보를 선택해주세요.');
+    if (!selectedCategory) {
+      alert('카테고리를 선택해주세요.');
       return;
     }
+
+    // 제품 선택 여부 확인
+    const hasPrimarySelection = (() => {
+      switch (selectedCategory) {
+        case 'macbook':
+          return Boolean(selectedMacbookModel);
+        case 'watch':
+          return Boolean(selectedSeries);
+        default:
+          return Boolean(selectedModel);
+      }
+    })();
+
+    if (!hasPrimarySelection) {
+      // 제품이 선택되지 않았으면 제출하지 않고 경고 상태 활성화
+      setHasTriedSubmit(true);
+      return;
+    }
+
+    // 제출 성공 시 경고 상태 초기화
+    setHasTriedSubmit(false);
 
     // 상세 시세 페이지로 이동
     navigate('/detail', {
@@ -598,7 +630,7 @@ export default function SearchPage() {
   return (
     <div className="box-border flex min-h-screen w-full items-center justify-center py-24 text-center">
       <div className="animate-fadeIn w-full max-w-[600px] p-5">
-        <h1 className="mb-6 font-['Inter'] text-[3.5rem] font-extrabold">How Much, Apple?</h1>
+        <h1 className="mb-6 font-['Inter'] text-[3.5rem] font-extrabold">How Much, Apple</h1>
         <p className="mb-14 text-lg leading-relaxed text-[#86868b]">
           당신의 중고 Apple 제품, 제 가치를 알고 있나요?
           <br /> 데이터가 알려주는 가장 정확한 현재의 가치.
@@ -629,6 +661,28 @@ export default function SearchPage() {
                 {renderSearchInput({ integrated: true })}
               </div>
             </div>
+            {(() => {
+              const hasPrimarySelection = (() => {
+                switch (selectedCategory) {
+                  case 'macbook':
+                    return Boolean(selectedMacbookModel);
+                  case 'watch':
+                    return Boolean(selectedSeries);
+                  default:
+                    return Boolean(selectedModel);
+                }
+              })();
+
+              // 제출을 시도했고 제품이 선택되지 않았을 때만 경고 메시지 표시
+              if (hasTriedSubmit && !hasPrimarySelection && selectedCategory) {
+                return (
+                  <p className="mt-1 text-left text-sm text-red-500">
+                    검색하고 싶은 제품을 입력해주세요.
+                  </p>
+                );
+              }
+              return null;
+            })()}
           </div>
 
           <div id="dynamic-options-container" className="flex w-full flex-col gap-5">
@@ -659,10 +713,9 @@ export default function SearchPage() {
                     <select
                       id="province-select"
                       className="w-full cursor-pointer appearance-none rounded-lg border border-[#d2d2d7] bg-transparent py-4 pr-10 pl-5 text-base text-[#1d1d1f] transition-all focus:border-[#0071e3] focus:shadow-[0_0_0_4px_rgba(0,113,227,0.15)] focus:outline-none [&:invalid]:text-[#6e6e73]"
-                      required
                       value={selectedProvince}
                       onChange={(e) => setSelectedProvince(e.target.value)}
-                      disabled={isRegionLoading || !!regionError}
+                      disabled={true}
                     >
                       <option value="" disabled hidden>
                         시 / 도
@@ -679,7 +732,6 @@ export default function SearchPage() {
                     <select
                       id="city-select"
                       className="w-full cursor-pointer appearance-none rounded-lg border border-[#d2d2d7] bg-transparent py-4 pr-10 pl-5 text-base text-[#1d1d1f] transition-all focus:border-[#0071e3] focus:shadow-[0_0_0_4px_rgba(0,113,227,0.15)] focus:outline-none [&:invalid]:text-[#6e6e73]"
-                      required
                       value={selectedCity}
                       onChange={(e) => setSelectedCity(e.target.value)}
                       disabled={!selectedProvince || isRegionLoading || !!regionError}
@@ -699,7 +751,6 @@ export default function SearchPage() {
                     <select
                       id="district-select"
                       className="w-full cursor-pointer appearance-none rounded-lg border border-[#d2d2d7] bg-transparent py-4 pr-10 pl-5 text-base text-[#1d1d1f] transition-all focus:border-[#0071e3] focus:shadow-[0_0_0_4px_rgba(0,113,227,0.15)] focus:outline-none [&:invalid]:text-[#6e6e73]"
-                      required
                       value={selectedDistrict}
                       onChange={(e) => setSelectedDistrict(e.target.value)}
                       disabled={!selectedCity || isRegionLoading || !!regionError}
