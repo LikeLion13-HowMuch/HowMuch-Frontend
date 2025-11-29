@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 // API Base URL (환경변수로 관리 가능)
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000/api';
+const API_BASE_URL = 'http://localhost:8000/api';
 // 없으면 그냥 로컬호스트로 관리됨.
 
 const WEEKS_TO_DISPLAY = 4;
@@ -38,7 +38,7 @@ const generatePriceTrendData = () => {
  */
 export const getPriceAnalysis = async (requestData) => {
   try {
-    const response = await axios.post(`${API_BASE_URL}/v1/products/price`, requestData, {
+    const response = await axios.post(`${API_BASE_URL}/v1/analytics/summary`, requestData, {
       headers: {
         'Content-Type': 'application/json',
       },

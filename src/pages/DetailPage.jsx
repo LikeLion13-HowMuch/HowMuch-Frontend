@@ -1,8 +1,7 @@
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useState, useEffect } from 'react';
-// import { getPriceAnalysis } from '../api/priceApi';
-import { getPriceAnalysisMock } from '../api/priceApi';
-// import { mapFormDataToApiRequest } from '../utils/apiMapper';
+import { getPriceAnalysis } from '../api/priceApi';
+import { mapFormDataToApiRequest } from '../utils/apiMapper';
 import LowestPriceListings from '../components/LowestPriceListings';
 
 export default function DetailPage() {
@@ -77,49 +76,10 @@ export default function DetailPage() {
       try {
         // ===== API 연결 부분 임시 주석처리 =====
         // SearchPage에서 넘어온 모든 state를 API 요청 형식으로 변환
-        // const requestData = mapFormDataToApiRequest(location.state);
+        const requestData = mapFormDataToApiRequest(location.state);
 
         // 실제 API 호출
-        // const response = await getPriceAnalysis(requestData);
-
-        // response 또는 response.data가 null일 경우 방어 처리
-        // if (!response || !response.data) {
-        //   throw new Error('API returned empty data (response.data is null)');
-        // }
-
-        // setApiData(response.data);
-
-        // 지역별 시세 데이터 설정
-        // const districtList =
-        //   response.data.regional_analysis?.detail_by_district?.map((item) => ({
-        //     district: item.emd,
-        //     average: item.average_price,
-        //     count: item.listing_count,
-        //   })) || [];
-
-        // setDistrictData(districtList);
-        // setSortedDistrictData(districtList);
-        // ===== API 연결 부분 끝 =====
-
-        // ===== 더미 데이터 사용 =====
-        // 더미 요청 데이터 생성 (location.state 기반)
-        const dummyRequestData = {
-          spec: {
-            model:
-              location.state?.model ||
-              location.state?.macbookModel ||
-              location.state?.series ||
-              'iPhone 16 Pro',
-          },
-          region: {
-            sd: location.state?.location?.province || '서울특별시',
-            sgg: location.state?.location?.city || '관악구',
-            emd: location.state?.location?.district || '신림동',
-          },
-        };
-
-        // 더미 API 호출
-        const response = await getPriceAnalysisMock(dummyRequestData);
+        const response = await getPriceAnalysis(requestData);
 
         // response 또는 response.data가 null일 경우 방어 처리
         if (!response || !response.data) {
@@ -137,9 +97,48 @@ export default function DetailPage() {
           })) || [];
 
         setDistrictData(districtList);
+        setSortedDistrictData(districtList);
+        // ===== API 연결 부분 끝 =====
+
+        // ===== 더미 데이터 사용 =====
+        // 더미 요청 데이터 생성 (location.state 기반)
+        //const dummyRequestData = {
+        //spec: {
+        //    model:
+        //      location.state?.model ||
+        //      location.state?.macbookModel ||
+        //      location.state?.series ||
+        //      'iPhone 16 Pro',
+        //  },
+        //  region: {
+        //    sd: location.state?.location?.province || '서울특별시',
+        //    sgg: location.state?.location?.city || '관악구',
+        //    emd: location.state?.location?.district || '신림동',
+        //  },
+        //};
+
+        // 더미 API 호출
+        //const response = await getPriceAnalysis(dummyRequestData);
+
+        // response 또는 response.data가 null일 경우 방어 처리
+        //if (!response || !response.data) {
+        //  throw new Error('API returned empty data (response.data is null)');
+        //}
+
+        //setApiData(response.data);
+
+        // 지역별 시세 데이터 설정
+        //const districtList =
+        //  response.data.regional_analysis?.detail_by_district?.map((item) => ({
+        //    district: item.emd,
+        //    average: item.average_price,
+        //    count: item.listing_count,
+        //  })) || [];
+
+        //setDistrictData(districtList);
         // 초기 로드 시 평균가 기준 오름차순 정렬 (최저가순)
-        const initialSorted = sortData(districtList, 'price', 'asc');
-        setSortedDistrictData(initialSorted);
+        //const initialSorted = sortData(districtList, 'price', 'asc');
+        //setSortedDistrictData(initialSorted);
         // ===== 더미 데이터 사용 끝 =====
       } catch (err) {
         console.error('데이터 로드 실패:', err);
