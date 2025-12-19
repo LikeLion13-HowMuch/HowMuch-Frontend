@@ -66,6 +66,9 @@ export default function DetailPage() {
   // 모델 정보 추출
   const modelName = apiData?.summary_info?.model_name || location.state?.model || 'Apple 제품';
 
+  // modelName의 첫 부분을 제외하고 나머지 재구성 (예: "iPhone 아이폰 17 프로" → "아이폰 17 프로")
+  const modelNameWithoutFirst = modelName.split(' ').slice(1).join(' ') || modelName;
+
   // 행정구역 JSON 로드 및 동일 시/구의 동 목록 생성
   // SearchPage에서도 쓴 행정구역 json을 여기서도 사용
   useEffect(() => {
@@ -371,7 +374,7 @@ export default function DetailPage() {
         {/* 페이지 타이틀 */}
         <header className="animate-fadeIn mb-5 text-center md:mb-[60px]">
           <h1 className="m-0 text-2xl font-bold tracking-tight md:text-[3.25rem]">
-            &apos;<span className="text-[#1d1d1f]">{modelName}</span>&apos; 시세
+            &apos;<span className="text-[#1d1d1f]">{modelNameWithoutFirst}</span>&apos; 시세
           </h1>
           <p className="mt-3 text-sm text-[#86868b] md:mt-5 md:text-lg">
             <span className="font-semibold text-[#1d1d1f]">
