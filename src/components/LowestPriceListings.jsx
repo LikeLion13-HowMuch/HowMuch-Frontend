@@ -117,7 +117,14 @@ export default function LowestPriceListings({ listings = [], district, city, pro
                 <p className="m-0 mb-1 text-lg font-bold">₩{formatPrice(listing.listing_price)}</p>
                 <p className="m-0 text-sm text-[#86868b]">{listing.district_detail}</p>
                 <p className="m-0 mt-1 text-xs font-semibold" style={{ color: platformInfo.color }}>
-                  출처: {listing.source}
+                  출처:{' '}
+                  {listing.source == 'daangn'
+                    ? '당근마켓'
+                    : listing.source == 'bunjang'
+                      ? '번개장터'
+                      : listing.source == 'joongna'
+                        ? '중고나라'
+                        : '기타'}
                 </p>
               </div>
             </a>
