@@ -83,7 +83,7 @@ export default function LowestPriceListings({ listings = [], district, city, pro
   };
 
   return (
-    <section className="mb-0">
+    <section className="mb-0 border-t border-[#e8e8ed] pt-8 md:border-0 md:pt-0">
       <h2 className="mb-6 text-left text-xl font-semibold tracking-tight md:mb-10 md:text-3xl">
         {title}
       </h2>

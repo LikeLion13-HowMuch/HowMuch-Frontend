@@ -471,9 +471,9 @@ export default function DetailPage() {
           style={{ animationDelay: '0.2s' }}
         >
           {/* 2-1. 좌측 컬럼: 가격 변동 추이 + 읍면동별 상세 시세 */}
-          <div className="flex flex-col gap-6 md:gap-10">
+          <div className="flex flex-col gap-10 md:gap-10">
             {/* 가격 변동 추이 그래프 */}
-            <section className="mb-0">
+            <section className="mb-0 border-t border-[#e8e8ed] pt-8 md:border-0 md:pt-0">
               <h2 className="mb-6 text-left text-xl font-semibold tracking-tight md:mb-10 md:text-3xl">
                 {locationDisplayName}의 가격 변동 추이 (최근 {priceHistory.length}주)
               </h2>
@@ -565,7 +565,7 @@ export default function DetailPage() {
             </section>
 
             {/* 읍면동별 상세 시세 (그래프 바로 아래) */}
-            <section className="mb-0">
+            <section className="mb-0 border-t border-[#e8e8ed] pt-8 md:border-0 md:pt-0">
               <h2 className="mb-6 text-left text-xl font-semibold tracking-tight md:mb-10 md:text-3xl">
                 읍면동별 상세 시세
               </h2>
