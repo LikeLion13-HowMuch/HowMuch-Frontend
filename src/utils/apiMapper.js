@@ -49,6 +49,7 @@ export const mapFormDataToApiRequest = (formData) => {
     storage,
     color,
     connection,
+    pencilSupport,
     chipset,
     ram,
     ssd,
@@ -85,7 +86,7 @@ export const mapFormDataToApiRequest = (formData) => {
     material: material || null,
     connectivity: connection || null,
     cellular: connection || null,
-    pencil_support: null,
+    pencil_support: pencilSupport ? pencilSupport === 'true' : null,
   };
 
   // 2) null 제거
