@@ -18,7 +18,12 @@ export default function DetailPage() {
   const [error, setError] = useState(null);
 
   // API에서 받아온 가격 변동 추이 데이터 (기본값)
-  const priceHistory = apiData?.price_trend?.chart_data || [];
+  // 날짜순으로 정렬 (과거 → 현재)
+  const priceHistory = (apiData?.price_trend?.chart_data || []).sort((a, b) => {
+    const dateA = new Date(a.period);
+    const dateB = new Date(b.period);
+    return dateA - dateB; // 오름차순 (과거 → 현재)
+  });
 
   const formatPrice = (price) => {
     return price.toLocaleString('ko-KR');
@@ -506,16 +511,17 @@ export default function DetailPage() {
                   {/* Y축 레이블 */}
                   {graphData.yAxisLabels.map((price, idx) => {
                     const y = 20 + (idx * 140) / 4;
+                    const priceText = (price / 10000).toFixed(1);
                     return (
                       <text
                         key={idx}
-                        x="55"
+                        x="50"
                         y={y + 5}
                         textAnchor="end"
-                        fontSize="12"
+                        fontSize="11"
                         fill="#86868b"
                       >
-                        {price / 10000}만
+                        {priceText}만
                       </text>
                     );
                   })}
