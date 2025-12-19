@@ -36,9 +36,6 @@ const modelKoreanMap = {
   'iPhone 12 Pro': '아이폰 12 프로',
   'iPhone 12 Pro Max': '아이폰 12 프로 맥스',
   'iPhone 12 Mini': '아이폰 12 미니',
-  'iPhone 11': '아이폰 11',
-  'iPhone 11 Pro': '아이폰 11 프로',
-  'iPhone 11 Pro Max': '아이폰 11 프로 맥스',
 };
 
 /**
@@ -52,6 +49,7 @@ export const mapFormDataToApiRequest = (formData) => {
     storage,
     color,
     connection,
+    pencilSupport,
     chipset,
     ram,
     ssd,
@@ -88,7 +86,7 @@ export const mapFormDataToApiRequest = (formData) => {
     material: material || null,
     connectivity: connection || null,
     cellular: connection || null,
-    pencil_support: null,
+    pencil_support: pencilSupport ? pencilSupport === 'true' : null,
   };
 
   // 2) null 제거

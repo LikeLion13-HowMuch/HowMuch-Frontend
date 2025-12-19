@@ -24,44 +24,112 @@
       {
         "label": "iPhone 12",
         "options": ["iPhone 12 Pro Max", "iPhone 12 Pro", "iPhone 12 Mini", "iPhone 12"]
-      },
-      {
-        "label": "iPhone 11",
-        "options": ["iPhone 11 Pro Max", "iPhone 11 Pro", "iPhone 11"]
       }
     ],
-    "storages": ["64GB", "128GB", "256GB", "512GB", "1TB", "2TB"],
-    "colors": [
-      "실버",
-      "코스믹 오렌지",
-      "딥블루",
-      "스카이 블루",
-      "라이트 골드",
-      "클라우드 화이트",
-      "스페이스 블랙",
-      "라벤더",
-      "세이지",
-      "미스트블루",
-      "화이트",
-      "블랙",
-      "울트라마린",
-      "틸",
-      "핑크",
-      "옐로",
-      "블루",
-      "화이트 티타늄",
-      "내추럴 티타늄",
-      "그린",
-      "미드나이트",
-      "스타라이트",
-      "레드",
-      "그래파이트",
-      "골드",
-      "시에라블루",
-      "알파인그린",
-      "퍼플",
-      "퍼시픽블루"
-    ]
+    "storages": [],
+    "colors": [],
+    "modelOptions": {
+      "iPhone 12 Pro Max": {
+        "storages": ["128GB", "256GB", "512GB"],
+        "colors": ["실버", "그래파이트", "골드", "퍼시픽블루"]
+      },
+      "iPhone 12 Pro": {
+        "storages": ["128GB", "256GB", "512GB"],
+        "colors": ["실버", "그래파이트", "골드", "퍼시픽블루"]
+      },
+      "iPhone 12": {
+        "storages": ["64GB", "128GB", "256GB"],
+        "colors": ["블랙", "화이트", "레드", "그린", "블루", "퍼플"]
+      },
+      "iPhone 12 Mini": {
+        "storages": ["64GB", "128GB", "256GB"],
+        "colors": ["블랙", "화이트", "레드", "그린", "블루", "퍼플"]
+      },
+      "iPhone 13 Pro Max": {
+        "storages": ["128GB", "256GB", "512GB", "1TB"],
+        "colors": ["그래파이트", "골드", "실버", "시에라블루", "알파인그린"]
+      },
+      "iPhone 13 Pro": {
+        "storages": ["128GB", "256GB", "512GB", "1TB"],
+        "colors": ["그래파이트", "골드", "실버", "시에라블루", "알파인그린"]
+      },
+      "iPhone 13": {
+        "storages": ["128GB", "256GB", "512GB"],
+        "colors": ["레드", "스타라이트", "미드나이트", "블루", "핑크", "그린"]
+      },
+      "iPhone 13 Mini": {
+        "storages": ["128GB", "256GB", "512GB"],
+        "colors": ["레드", "스타라이트", "미드나이트", "블루", "핑크", "그린"]
+      },
+      "iPhone 14 Pro Max": {
+        "storages": ["128GB", "256GB", "512GB", "1TB"],
+        "colors": ["스페이스 블랙", "실버", "골드", "딥 퍼플"]
+      },
+      "iPhone 14 Pro": {
+        "storages": ["128GB", "256GB", "512GB", "1TB"],
+        "colors": ["스페이스 블랙", "실버", "골드", "딥 퍼플"]
+      },
+      "iPhone 14+": {
+        "storages": ["128GB", "256GB", "512GB"],
+        "colors": ["미드나이트", "퍼플", "스타라이트", "레드", "블루", "옐로"]
+      },
+      "iPhone 14": {
+        "storages": ["128GB", "256GB", "512GB"],
+        "colors": ["미드나이트", "퍼플", "스타라이트", "레드", "블루", "옐로"]
+      },
+      "iPhone 15 Pro Max": {
+        "storages": ["256GB", "512GB", "1TB"],
+        "colors": ["블랙 티타늄", "화이트 티타늄", "블루 티타늄", "내추럴 티타늄"]
+      },
+      "iPhone 15 Pro": {
+        "storages": ["128GB", "256GB", "512GB", "1TB"],
+        "colors": ["블랙 티타늄", "화이트 티타늄", "블루 티타늄", "내추럴 티타늄"]
+      },
+      "iPhone 15 Plus": {
+        "storages": ["128GB", "256GB", "512GB"],
+        "colors": ["블랙", "블루", "그린", "옐로", "핑크"]
+      },
+      "iPhone 15": {
+        "storages": ["128GB", "256GB", "512GB"],
+        "colors": ["블랙", "블루", "그린", "옐로", "핑크"]
+      },
+      "iPhone 16 Pro Max": {
+        "storages": ["256GB", "512GB", "1TB"],
+        "colors": ["블랙 티타늄", "화이트 티타늄", "내추럴 티타늄", "데저트 티타늄"]
+      },
+      "iPhone 16 Pro": {
+        "storages": ["128GB", "256GB", "512GB", "1TB"],
+        "colors": ["블랙 티타늄", "화이트 티타늄", "내추럴 티타늄", "데저트 티타늄"]
+      },
+      "iPhone 16 Plus": {
+        "storages": ["128GB", "256GB", "512GB"],
+        "colors": ["블랙", "화이트", "핑크", "틸", "울트라마린"]
+      },
+      "iPhone 16": {
+        "storages": ["128GB", "256GB", "512GB"],
+        "colors": ["블랙", "화이트", "핑크", "틸", "울트라마린"]
+      },
+      "iPhone 16e": {
+        "storages": ["128GB", "256GB", "512GB"],
+        "colors": ["블랙", "화이트"]
+      },
+      "iPhone 17 Pro Max": {
+        "storages": ["256GB", "512GB", "1TB", "2TB"],
+        "colors": ["실버", "코스믹 오렌지", "딥블루"]
+      },
+      "iPhone 17 Pro": {
+        "storages": ["256GB", "512GB", "1TB"],
+        "colors": ["실버", "코스믹 오렌지", "딥블루"]
+      },
+      "iPhone 17": {
+        "storages": ["256GB", "512GB"],
+        "colors": ["블랙", "화이트", "미스트블루", "세이지", "라벤더"]
+      },
+      "iPhone Air": {
+        "storages": ["256GB", "512GB", "1TB"],
+        "colors": ["스페이스 블랙", "클라우드 화이트", "라이트 골드", "스카이 블루"]
+      }
+    }
   },
 
   "ipad": {
@@ -109,27 +177,135 @@
         "options": ["아이패드 미니 5세대", "아이패드 미니 6세대", "아이패드 미니 A17Pro"]
       }
     ],
-    "connections": ["Wi-Fi", "Wi-Fi + Cellular"],
-    "colors": [
-      "스페이스 그레이",
-      "실버",
-      "스페이스 블랙",
-      "골드",
-      "불루",
-      "핑크",
-      "옐로우",
-      "블루",
-      "스카이 블루",
-      "스타라이트",
-      "퍼플"
-    ]
+    "connections": [],
+    "colors": [],
+    "modelOptions": {
+      "아이패드 프로 13 M4": {
+        "storages": ["256GB", "512GB", "1TB", "2TB"],
+        "connections": ["Wi-Fi", "Wi-Fi + Cellular"],
+        "pencilSupport": true
+      },
+      "아이패드 프로 11 M4": {
+        "storages": ["256GB", "512GB", "1TB", "2TB"],
+        "connections": ["Wi-Fi", "Wi-Fi + Cellular"],
+        "pencilSupport": true
+      },
+      "아이패드 프로 12.9 6세대": {
+        "storages": ["128GB", "256GB", "512GB", "1TB", "2TB"],
+        "connections": ["Wi-Fi", "Wi-Fi + Cellular"],
+        "pencilSupport": true
+      },
+      "아이패드 프로 11 4세대": {
+        "storages": ["128GB", "256GB", "512GB", "1TB", "2TB"],
+        "connections": ["Wi-Fi", "Wi-Fi + Cellular"],
+        "pencilSupport": true
+      },
+      "아이패드 프로 12.9 5세대": {
+        "storages": ["128GB", "256GB", "512GB", "1TB", "2TB"],
+        "connections": ["Wi-Fi", "Wi-Fi + Cellular"],
+        "pencilSupport": true
+      },
+      "아이패드 프로 11 3세대": {
+        "storages": ["128GB", "256GB", "512GB", "1TB", "2TB"],
+        "connections": ["Wi-Fi", "Wi-Fi + Cellular"],
+        "pencilSupport": true
+      },
+      "아이패드 프로 12.9 4세대": {
+        "storages": ["128GB", "256GB", "512GB", "1TB"],
+        "connections": ["Wi-Fi", "Wi-Fi + Cellular"],
+        "pencilSupport": true
+      },
+      "아이패드 프로 11 2세대": {
+        "storages": ["128GB", "256GB", "512GB", "1TB"],
+        "connections": ["Wi-Fi", "Wi-Fi + Cellular"],
+        "pencilSupport": true
+      },
+      "아이패드 프로 12.9 3세대": {
+        "storages": ["64GB", "256GB", "512GB", "1TB"],
+        "connections": ["Wi-Fi", "Wi-Fi + Cellular"],
+        "pencilSupport": true
+      },
+      "아이패드 프로 11 1세대": {
+        "storages": ["64GB", "256GB", "512GB", "1TB"],
+        "connections": ["Wi-Fi", "Wi-Fi + Cellular"],
+        "pencilSupport": true
+      },
+      "아이패드 에어 13 (M2)": {
+        "storages": ["128GB", "256GB", "512GB", "1TB"],
+        "connections": ["Wi-Fi", "Wi-Fi + Cellular"],
+        "pencilSupport": true
+      },
+      "아이패드 에어 11 (M2)": {
+        "storages": ["128GB", "256GB", "512GB", "1TB"],
+        "connections": ["Wi-Fi", "Wi-Fi + Cellular"],
+        "pencilSupport": true
+      },
+      "아이패드 에어 5세대": {
+        "storages": ["64GB", "256GB"],
+        "connections": ["Wi-Fi", "Wi-Fi + Cellular"],
+        "pencilSupport": true
+      },
+      "아이패드 에어 4세대": {
+        "storages": ["64GB", "256GB"],
+        "connections": ["Wi-Fi", "Wi-Fi + Cellular"],
+        "pencilSupport": true
+      },
+      "아이패드 에어 3세대": {
+        "storages": ["64GB", "256GB"],
+        "connections": ["Wi-Fi", "Wi-Fi + Cellular"],
+        "pencilSupport": true
+      },
+      "아이패드 미니 A17Pro": {
+        "storages": ["128GB", "256GB", "512GB"],
+        "connections": ["Wi-Fi", "Wi-Fi + Cellular"],
+        "pencilSupport": true
+      },
+      "아이패드 미니 6세대": {
+        "storages": ["64GB", "256GB"],
+        "connections": ["Wi-Fi", "Wi-Fi + Cellular"],
+        "pencilSupport": true
+      },
+      "아이패드 미니 5세대": {
+        "storages": ["64GB", "256GB"],
+        "connections": ["Wi-Fi", "Wi-Fi + Cellular"],
+        "pencilSupport": true
+      },
+      "아이패드 10세대": {
+        "storages": ["64GB", "256GB"],
+        "connections": ["Wi-Fi", "Wi-Fi + Cellular"],
+        "pencilSupport": true
+      },
+      "아이패드 9세대": {
+        "storages": ["64GB", "256GB"],
+        "connections": ["Wi-Fi", "Wi-Fi + Cellular"],
+        "pencilSupport": true
+      },
+      "아이패드 8세대": {
+        "storages": ["32GB", "128GB"],
+        "connections": ["Wi-Fi", "Wi-Fi + Cellular"],
+        "pencilSupport": true
+      },
+      "아이패드 7세대": {
+        "storages": ["32GB", "128GB"],
+        "connections": ["Wi-Fi", "Wi-Fi + Cellular"],
+        "pencilSupport": true
+      },
+      "아이패드 6세대": {
+        "storages": ["32GB", "128GB"],
+        "connections": ["Wi-Fi", "Wi-Fi + Cellular"],
+        "pencilSupport": true
+      }
+    }
   },
   "macbook": {
-    "models": ["맥북 에어", "맥북 프로", "맥북 (단종)"],
+    "models": ["맥북 에어", "맥북 프로"],
     "chipsetGroups": [
       {
         "label": "Apple Silicon",
         "options": [
+          "M5",
+          "M5 Pro",
+          "M5 Max",
           "M4",
           "M4 Pro",
           "M4 Max",
@@ -159,6 +335,140 @@
       "골드 (Gold)",
       "로즈 골드 (Rose Gold)"
     ],
+    "airChipsets": ["M4", "M3", "M2", "M1", "Intel"],
+    "airOptions": {
+      "M4": {
+        "colors": ["실버", "스타라이트", "스카이 블루", "미드나이트"],
+        "rams": ["16GB", "24GB", "32GB"],
+        "ssds": ["256GB", "512GB", "1TB", "2TB"]
+      },
+      "M3": {
+        "colors": ["실버", "스타라이트", "스페이스 그레이", "미드나이트"],
+        "rams": ["8GB", "16GB", "24GB"],
+        "ssds": ["256GB", "512GB", "1TB", "2TB"]
+      },
+      "M2": {
+        "colors": ["실버", "스타라이트", "스페이스 그레이", "미드나이트"],
+        "rams": ["8GB", "16GB", "24GB"],
+        "ssds": ["256GB", "512GB", "1TB", "2TB"]
+      },
+      "M1": {
+        "colors": ["골드", "실버", "스페이스 그레이"],
+        "rams": ["8GB", "16GB"],
+        "ssds": ["256GB", "512GB", "1TB", "2TB"]
+      },
+      "Intel": {
+        "colors": ["골드", "실버", "스페이스 그레이"],
+        "rams": ["8GB", "16GB"],
+        "ssds": ["256GB", "512GB", "1TB", "2TB"]
+      }
+    },
+    "proChipsets": [
+      "M5",
+      "M5 Pro",
+      "M5 Max",
+      "M4",
+      "M4 Pro",
+      "M4 Max",
+      "M3",
+      "M3 Pro",
+      "M3 Max",
+      "M2",
+      "M2 Pro",
+      "M2 Max",
+      "M1",
+      "M1 Pro",
+      "M1 Max",
+      "Intel Core i5",
+      "Intel Core i7"
+    ],
+    "proOptions": {
+      "M5": {
+        "colors": ["실버", "스페이스 블랙"],
+        "rams": ["16GB", "24GB", "32GB", "48GB", "64GB", "128GB"],
+        "ssds": ["512GB", "1TB", "2TB", "4TB", "8TB"]
+      },
+      "M5 Pro": {
+        "colors": ["실버", "스페이스 블랙"],
+        "rams": ["16GB", "24GB", "32GB", "48GB", "64GB", "128GB"],
+        "ssds": ["512GB", "1TB", "2TB", "4TB", "8TB"]
+      },
+      "M5 Max": {
+        "colors": ["실버", "스페이스 블랙"],
+        "rams": ["16GB", "24GB", "32GB", "48GB", "64GB", "128GB"],
+        "ssds": ["512GB", "1TB", "2TB", "4TB", "8TB"]
+      },
+      "M4": {
+        "colors": ["실버", "스페이스 블랙"],
+        "rams": ["16GB", "24GB", "32GB", "36GB", "48GB", "64GB", "128GB"],
+        "ssds": ["512GB", "1TB", "2TB", "4TB", "8TB"]
+      },
+      "M4 Pro": {
+        "colors": ["실버", "스페이스 블랙"],
+        "rams": ["16GB", "24GB", "32GB", "36GB", "48GB", "64GB", "128GB"],
+        "ssds": ["512GB", "1TB", "2TB", "4TB", "8TB"]
+      },
+      "M4 Max": {
+        "colors": ["실버", "스페이스 블랙"],
+        "rams": ["16GB", "24GB", "32GB", "36GB", "48GB", "64GB", "128GB"],
+        "ssds": ["512GB", "1TB", "2TB", "4TB", "8TB"]
+      },
+      "M3 Pro": {
+        "colors": ["실버", "스페이스 블랙"],
+        "rams": ["18GB", "36GB", "48GB", "64GB", "96GB", "128GB"],
+        "ssds": ["512GB", "1TB", "2TB", "4TB", "8TB"]
+      },
+      "M3 Max": {
+        "colors": ["실버", "스페이스 블랙"],
+        "rams": ["18GB", "36GB", "48GB", "64GB", "96GB", "128GB"],
+        "ssds": ["512GB", "1TB", "2TB", "4TB", "8TB"]
+      },
+      "M3": {
+        "colors": ["실버", "스페이스 그레이"],
+        "rams": ["8GB", "16GB", "24GB"],
+        "ssds": ["512GB", "1TB", "2TB"]
+      },
+      "M2 Pro": {
+        "colors": ["실버", "스페이스 그레이"],
+        "rams": ["16GB", "32GB", "64GB", "96GB"],
+        "ssds": ["512GB", "1TB", "2TB", "4TB", "8TB"]
+      },
+      "M2 Max": {
+        "colors": ["실버", "스페이스 그레이"],
+        "rams": ["16GB", "32GB", "64GB", "96GB"],
+        "ssds": ["512GB", "1TB", "2TB", "4TB", "8TB"]
+      },
+      "M2": {
+        "colors": ["실버", "스페이스 그레이"],
+        "rams": ["8GB", "16GB", "24GB"],
+        "ssds": ["256GB", "512GB", "1TB", "2TB"]
+      },
+      "M1 Pro": {
+        "colors": ["실버", "스페이스 그레이"],
+        "rams": ["16GB", "32GB", "64GB"],
+        "ssds": ["512GB", "1TB", "2TB", "4TB", "8TB"]
+      },
+      "M1 Max": {
+        "colors": ["실버", "스페이스 그레이"],
+        "rams": ["16GB", "32GB", "64GB"],
+        "ssds": ["512GB", "1TB", "2TB", "4TB", "8TB"]
+      },
+      "M1": {
+        "colors": ["실버", "스페이스 그레이"],
+        "rams": ["8GB", "16GB"],
+        "ssds": ["256GB", "512GB", "1TB", "2TB"]
+      },
+      "Intel Core i5": {
+        "colors": ["실버", "스페이스 그레이"],
+        "rams": ["8GB", "16GB", "32GB"],
+        "ssds": ["256GB", "512GB", "1TB", "2TB", "4TB"]
+      },
+      "Intel Core i7": {
+        "colors": ["실버", "스페이스 그레이"],
+        "rams": ["8GB", "16GB", "32GB"],
+        "ssds": ["256GB", "512GB", "1TB", "2TB", "4TB"]
+      }
+    },
     "displaySizes": ["13인치", "14인치", "15인치", "16인치"]
   },
   "watch": {
@@ -178,22 +488,72 @@
       "워치 SE 2",
       "워치 SE"
     ],
-    "sizes": ["49mm", "45mm", "46mm", "44mm", "41mm", "40mm", "42mm"],
-    "materials": ["알루미늄", "스테인리스스틸", "티타늄"],
-    "connections": ["GPS", "GPS + 셀룰러"],
-    "colors": [
-      "블랙",
-      "그레이",
-      "실버",
-      "골드",
-      "스페이스그레이",
-      "스타라이트",
-      "미드나이트",
-      "그래파이트",
-      "블루",
-      "레드",
-      "핑크"
-    ]
+    "sizes": [],
+    "materials": [],
+    "connections": [],
+    "colors": [],
+    "modelOptions": {
+      "워치 11": {
+        "sizes": ["42mm", "46mm"],
+        "materials": ["알루미늄", "티타늄"],
+        "connections": ["GPS", "GPS + 셀룰러"]
+      },
+      "워치 SE 3": {
+        "sizes": ["42mm", "46mm"],
+        "materials": ["알루미늄"],
+        "connections": ["GPS", "GPS + 셀룰러"]
+      },
+      "워치 울트라 3": {
+        "sizes": ["49mm"],
+        "materials": ["티타늄"],
+        "connections": ["GPS + 셀룰러"]
+      },
+      "워치 10": {
+        "sizes": ["42mm", "46mm"],
+        "materials": ["알루미늄", "티타늄"],
+        "connections": ["GPS", "GPS + 셀룰러"]
+      },
+      "워치 울트라 2": {
+        "sizes": ["49mm"],
+        "materials": ["티타늄"],
+        "connections": ["GPS + 셀룰러"]
+      },
+      "워치 9": {
+        "sizes": ["41mm", "45mm"],
+        "materials": ["알루미늄", "스테인리스스틸"],
+        "connections": ["GPS", "GPS + 셀룰러"]
+      },
+      "워치 울트라": {
+        "sizes": ["49mm"],
+        "materials": ["티타늄"],
+        "connections": ["GPS + 셀룰러"]
+      },
+      "워치 8": {
+        "sizes": ["41mm", "45mm"],
+        "materials": ["알루미늄", "스테인리스스틸"],
+        "connections": ["GPS", "GPS + 셀룰러"]
+      },
+      "워치 SE 2": {
+        "sizes": ["40mm", "44mm"],
+        "materials": ["알루미늄"],
+        "connections": ["GPS", "GPS + 셀룰러"]
+      },
+      "워치 7": {
+        "sizes": ["41mm", "45mm"],
+        "materials": ["알루미늄", "스테인리스스틸", "티타늄"],
+        "connections": ["GPS", "GPS + 셀룰러"]
+      },
+      "워치 6": {
+        "sizes": ["40mm", "44mm"],
+        "materials": ["알루미늄", "스테인리스스틸", "티타늄"],
+        "connections": ["GPS", "GPS + 셀룰러"]
+      },
+      "워치 SE": {
+        "sizes": ["40mm", "44mm"],
+        "materials": ["알루미늄"],
+        "connections": ["GPS", "GPS + 셀룰러"]
+      }
+    }
   },
   "airpods": {
     "models": [

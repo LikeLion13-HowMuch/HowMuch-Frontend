@@ -97,7 +97,9 @@ export default function DetailPage() {
           })) || [];
 
         setDistrictData(districtList);
-        setSortedDistrictData(districtList);
+        // 초기 로드 시 평균가 기준 오름차순 정렬 (최저가순)
+        const initialSorted = sortData(districtList, 'price', 'asc');
+        setSortedDistrictData(initialSorted);
         // ===== API 연결 부분 끝 =====
 
         // ===== 더미 데이터 사용 =====
@@ -142,7 +144,25 @@ export default function DetailPage() {
         // ===== 더미 데이터 사용 끝 =====
       } catch (err) {
         console.error('데이터 로드 실패:', err);
-        setError('데이터를 불러오는데 실패했습니다. 다시 시도해주세요.');
+
+        // 네트워크 오류인 경우 명확한 메시지 표시
+        if (
+          err.isNetworkError ||
+          err.code === 'ERR_NETWORK' ||
+          err.message?.includes('Network Error')
+        ) {
+          setError(
+            '백엔드 서버에 연결할 수 없습니다.\n' +
+              '백엔드 서버가 실행 중인지 확인해주세요.\n' +
+              '(예: http://localhost:8000)',
+          );
+        } else if (err.response) {
+          // 서버 응답이 있는 경우 (4xx, 5xx)
+          setError(`서버 오류가 발생했습니다. (${err.response.status})`);
+        } else {
+          // 기타 오류
+          setError('데이터를 불러오는데 실패했습니다. 다시 시도해주세요.');
+        }
       } finally {
         setIsLoading(false);
       }

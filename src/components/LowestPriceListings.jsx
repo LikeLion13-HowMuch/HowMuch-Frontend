@@ -106,11 +106,13 @@ export default function LowestPriceListings({ listings = [], district, city, pro
                 e.currentTarget.style.backgroundColor = 'transparent';
               }}
             >
-              <img
-                src="/iphone.jpeg"
-                alt="상품 이미지"
-                className="mr-4 h-15 w-15 flex-shrink-0 rounded-lg object-cover"
-              />
+              {platformInfo.logo && (
+                <img
+                  src={platformInfo.logo}
+                  alt={`${listing.source} 로고`}
+                  className={`mr-4 flex-shrink-0 ${platformInfo.isBunjang ? 'h-15 w-15' : 'h-15 w-15'}`}
+                />
+              )}
               <div className="flex-grow">
                 <p className="m-0 mb-1 text-lg font-bold">₩{formatPrice(listing.listing_price)}</p>
                 <p className="m-0 text-sm text-[#86868b]">{listing.district_detail}</p>
@@ -118,13 +120,6 @@ export default function LowestPriceListings({ listings = [], district, city, pro
                   출처: {listing.source}
                 </p>
               </div>
-              {platformInfo.logo && (
-                <img
-                  src={platformInfo.logo}
-                  alt={`${listing.source} 로고`}
-                  className={`flex-shrink-0 ${platformInfo.isBunjang ? 'h-8 w-8' : 'h-6 w-6'}`}
-                />
-              )}
             </a>
           );
         })}

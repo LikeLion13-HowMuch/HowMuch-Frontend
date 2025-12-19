@@ -7,6 +7,7 @@ export default function SearchPage() {
   const [selectedStorage, setSelectedStorage] = useState('');
   const [selectedColor, setSelectedColor] = useState('');
   const [selectedConnection, setSelectedConnection] = useState('');
+  const [selectedPencilSupport, setSelectedPencilSupport] = useState('');
   const [selectedChipset, setSelectedChipset] = useState('');
   const [selectedRam, setSelectedRam] = useState('');
   const [selectedSsd, setSelectedSsd] = useState('');
@@ -217,7 +218,7 @@ export default function SearchPage() {
     const initialItems = searchItemsByCategory[selectedCategory] ?? [];
 
     if (initialItems.length > 0) {
-      setFilteredModels(initialItems.slice(0, 10));
+      setFilteredModels(initialItems); // 모든 아이템 표시
     } else {
       // searchItemsByCategory가 아직 준비되지 않았으면 빈 배열 설정
       setFilteredModels([]);
@@ -231,6 +232,7 @@ export default function SearchPage() {
     setSelectedStorage('');
     setSelectedColor('');
     setSelectedConnection('');
+    setSelectedPencilSupport('');
     setSelectedChipset('');
     setSelectedRam('');
     setSelectedSsd('');
@@ -253,13 +255,13 @@ export default function SearchPage() {
 
     const allItems = searchItemsByCategory[selectedCategory] ?? [];
     if (!query.trim()) {
-      setFilteredModels(allItems.slice(0, 10));
+      setFilteredModels(allItems); // 모든 아이템 표시
       return;
     }
 
     const lowerQuery = query.toLowerCase();
     const filtered = allItems.filter((item) => item.label.toLowerCase().includes(lowerQuery));
-    setFilteredModels(filtered.slice(0, 20));
+    setFilteredModels(filtered); // 필터링된 모든 아이템 표시
   };
 
   const handleSelectModel = (value) => {
@@ -268,9 +270,29 @@ export default function SearchPage() {
     switch (selectedCategory) {
       case 'macbook':
         setSelectedMacbookModel(value);
+        // 맥북 모델 변경 시 세부 사양 초기화
+        setSelectedChipset('');
+        setSelectedColor('');
+        setSelectedRam('');
+        setSelectedSsd('');
+        setSelectedSize('');
         break;
       case 'watch':
         setSelectedSeries(value);
+        setSelectedSize('');
+        setSelectedMaterial('');
+        setSelectedConnection('');
+        break;
+      case 'iphone':
+        setSelectedModel(value);
+        setSelectedStorage('');
+        setSelectedColor('');
+        break;
+      case 'ipad':
+        setSelectedModel(value);
+        setSelectedStorage('');
+        setSelectedConnection('');
+        setSelectedPencilSupport('');
         break;
       default:
         setSelectedModel(value);
@@ -319,6 +341,7 @@ export default function SearchPage() {
         storage: selectedStorage,
         color: selectedColor,
         connection: selectedConnection,
+        pencilSupport: selectedPencilSupport,
         chipset: selectedChipset,
         ram: selectedRam,
         ssd: selectedSsd,
@@ -334,9 +357,113 @@ export default function SearchPage() {
     });
   };
 
+  const getIphoneModelOptions = (iphoneOptions, model) => {
+    if (!iphoneOptions || !model) {
+      // 기종이 선택되지 않았거나 옵션 데이터가 없으면 아무 값도 제공하지 않음
+      return { storages: [], colors: [] };
+    }
+
+    const modelOptions = iphoneOptions.modelOptions?.[model];
+
+    if (!modelOptions) {
+      // 정의되지 않은 기종에 대해서도 잘못된 공통 옵션을 노출하지 않기 위해 빈 배열 반환
+      return { storages: [], colors: [] };
+    }
+
+    return {
+      storages: modelOptions.storages ?? [],
+      colors: modelOptions.colors ?? [],
+    };
+  };
+
+  const getIpadModelOptions = (ipadOptions, model) => {
+    if (!ipadOptions || !model) {
+      // 기종이 선택되지 않았거나 옵션 데이터가 없으면 아무 값도 제공하지 않음
+      return { storages: [], connections: [], pencilSupport: null };
+    }
+
+    const modelOptions = ipadOptions.modelOptions?.[model];
+
+    if (!modelOptions) {
+      // 정의되지 않은 기종에 대해서도 잘못된 공통 옵션을 노출하지 않기 위해 빈 배열 반환
+      return { storages: [], connections: [], pencilSupport: null };
+    }
+
+    return {
+      storages: modelOptions.storages ?? [],
+      connections: modelOptions.connections ?? [],
+      pencilSupport: modelOptions.pencilSupport ?? null,
+    };
+  };
+
+  const getWatchModelOptions = (watchOptions, series) => {
+    if (!watchOptions || !series) {
+      // 기종이 선택되지 않았거나 옵션 데이터가 없으면 아무 값도 제공하지 않음
+      return { sizes: [], materials: [], connections: [] };
+    }
+
+    const modelOptions = watchOptions.modelOptions?.[series];
+
+    if (!modelOptions) {
+      // 정의되지 않은 기종에 대해서도 잘못된 공통 옵션을 노출하지 않기 위해 빈 배열 반환
+      return { sizes: [], materials: [], connections: [] };
+    }
+
+    return {
+      sizes: modelOptions.sizes ?? [],
+      materials: modelOptions.materials ?? [],
+      connections: modelOptions.connections ?? [],
+    };
+  };
+
+  const getMacbookAirOptions = (macbookOptions, chipset) => {
+    if (!macbookOptions || !chipset) {
+      // 칩셋이 선택되지 않았거나 옵션 데이터가 없으면 아무 값도 제공하지 않음
+      return { colors: [], rams: [], ssds: [] };
+    }
+
+    const chipsetOptions = macbookOptions.airOptions?.[chipset];
+
+    if (!chipsetOptions) {
+      // 정의되지 않은 칩셋에 대해서도 잘못된 공통 옵션을 노출하지 않기 위해 빈 배열 반환
+      return { colors: [], rams: [], ssds: [] };
+    }
+
+    return {
+      colors: chipsetOptions.colors ?? [],
+      rams: chipsetOptions.rams ?? [],
+      ssds: chipsetOptions.ssds ?? [],
+    };
+  };
+
+  const getMacbookProOptions = (macbookOptions, chipset) => {
+    if (!macbookOptions || !chipset) {
+      // 칩셋이 선택되지 않았거나 옵션 데이터가 없으면 아무 값도 제공하지 않음
+      return { colors: [], rams: [], ssds: [] };
+    }
+
+    const chipsetOptions = macbookOptions.proOptions?.[chipset];
+
+    if (!chipsetOptions) {
+      // 정의되지 않은 칩셋에 대해서도 잘못된 공통 옵션을 노출하지 않기 위해 빈 배열 반환
+      return { colors: [], rams: [], ssds: [] };
+    }
+
+    return {
+      colors: chipsetOptions.colors ?? [],
+      rams: chipsetOptions.rams ?? [],
+      ssds: chipsetOptions.ssds ?? [],
+    };
+  };
+
   const renderIphoneOptions = () => {
     const iphone = deviceOptions?.iphone;
     if (!iphone) return null;
+
+    const { storages: iphoneStorages, colors: iphoneColors } = getIphoneModelOptions(
+      iphone,
+      selectedModel,
+    );
 
     return (
       <div id="iphone-options" className="animate-fadeIn flex flex-col gap-5">
@@ -349,7 +476,7 @@ export default function SearchPage() {
             <option value="" disabled hidden>
               저장 용량
             </option>
-            {iphone.storages?.map((storage) => (
+            {iphoneStorages?.map((storage) => (
               <option key={storage}>{storage}</option>
             ))}
           </select>
@@ -363,7 +490,7 @@ export default function SearchPage() {
             <option value="" disabled hidden>
               색상
             </option>
-            {iphone.colors?.map((color) => (
+            {iphoneColors?.map((color) => (
               <option key={color}>{color}</option>
             ))}
           </select>
@@ -376,8 +503,28 @@ export default function SearchPage() {
     const ipad = deviceOptions?.ipad;
     if (!ipad) return null;
 
+    const {
+      storages: ipadStorages,
+      connections: ipadConnections,
+      pencilSupport,
+    } = getIpadModelOptions(ipad, selectedModel);
+
     return (
       <div id="ipad-options" className="animate-fadeIn flex flex-col gap-5">
+        <div className="relative w-full">
+          <select
+            className="w-full cursor-pointer appearance-none rounded-lg border border-[#d2d2d7] bg-transparent py-4 pr-10 pl-5 text-base text-[#1d1d1f] transition-all focus:border-[#0071e3] focus:shadow-[0_0_0_4px_rgba(0,113,227,0.15)] focus:outline-none [&:invalid]:text-[#6e6e73]"
+            value={selectedStorage}
+            onChange={(e) => setSelectedStorage(e.target.value)}
+          >
+            <option value="" disabled hidden>
+              저장 용량
+            </option>
+            {ipadStorages?.map((storage) => (
+              <option key={storage}>{storage}</option>
+            ))}
+          </select>
+        </div>
         <div className="relative w-full">
           <select
             className="w-full cursor-pointer appearance-none rounded-lg border border-[#d2d2d7] bg-transparent py-4 pr-10 pl-5 text-base text-[#1d1d1f] transition-all focus:border-[#0071e3] focus:shadow-[0_0_0_4px_rgba(0,113,227,0.15)] focus:outline-none [&:invalid]:text-[#6e6e73]"
@@ -387,11 +534,26 @@ export default function SearchPage() {
             <option value="" disabled hidden>
               연결
             </option>
-            {ipad.connections?.map((connection) => (
+            {ipadConnections?.map((connection) => (
               <option key={connection}>{connection}</option>
             ))}
           </select>
         </div>
+        {pencilSupport !== null && (
+          <div className="relative w-full">
+            <select
+              className="w-full cursor-pointer appearance-none rounded-lg border border-[#d2d2d7] bg-transparent py-4 pr-10 pl-5 text-base text-[#1d1d1f] transition-all focus:border-[#0071e3] focus:shadow-[0_0_0_4px_rgba(0,113,227,0.15)] focus:outline-none [&:invalid]:text-[#6e6e73]"
+              value={selectedPencilSupport}
+              onChange={(e) => setSelectedPencilSupport(e.target.value)}
+            >
+              <option value="" disabled hidden>
+                Apple Pencil 지원
+              </option>
+              <option value="true">지원</option>
+              <option value="false">미지원</option>
+            </select>
+          </div>
+        )}
       </div>
     );
   };
@@ -405,62 +567,224 @@ export default function SearchPage() {
       return null;
     }
 
-    // 맥북 모델이 선택되었으면 칩셋, RAM, SSD 선택 드롭다운 표시
-    return (
-      <div id="macbook-options" className="animate-fadeIn flex flex-col gap-5">
-        <div className="relative w-full">
-          <select
-            className="w-full cursor-pointer appearance-none rounded-lg border border-[#d2d2d7] bg-transparent py-4 pr-10 pl-5 text-base text-[#1d1d1f] transition-all focus:border-[#0071e3] focus:shadow-[0_0_0_4px_rgba(0,113,227,0.15)] focus:outline-none [&:invalid]:text-[#6e6e73]"
-            value={selectedChipset}
-            onChange={(e) => setSelectedChipset(e.target.value)}
-          >
-            <option value="" disabled hidden>
-              칩셋 모델
-            </option>
-            {macbook.chipsetGroups?.map((group) => (
-              <optgroup key={group.label} label={group.label}>
-                {group.options.map((option) => (
-                  <option key={option}>{option}</option>
-                ))}
-              </optgroup>
-            ))}
-          </select>
+    // 공통: 디스플레이 크기 선택 (에어/프로 각각 다른 옵션)
+    const baseDisplaySizes = macbook.displaySizes ?? [];
+    const macbookDisplaySizes =
+      selectedMacbookModel === '맥북 에어'
+        ? baseDisplaySizes.filter((size) => size === '13인치' || size === '15인치')
+        : selectedMacbookModel === '맥북 프로'
+          ? baseDisplaySizes.filter((size) => size === '14인치' || size === '16인치')
+          : baseDisplaySizes;
+
+    // 맥북 에어: 칩셋 선택 → 해당 칩셋에 맞는 색상 / RAM / SSD만 노출
+    if (selectedMacbookModel === '맥북 에어') {
+      const { colors, rams, ssds } = getMacbookAirOptions(macbook, selectedChipset);
+
+      return (
+        <div id="macbook-options" className="animate-fadeIn flex flex-col gap-5">
+          {/* 1. 칩셋 */}
+          <div className="relative w-full">
+            <select
+              className="w-full cursor-pointer appearance-none rounded-lg border border-[#d2d2d7] bg-transparent py-4 pr-10 pl-5 text-base text-[#1d1d1f] transition-all focus:border-[#0071e3] focus:shadow-[0_0_0_4px_rgba(0,113,227,0.15)] focus:outline-none [&:invalid]:text-[#6e6e73]"
+              value={selectedChipset}
+              onChange={(e) => {
+                const value = e.target.value;
+                setSelectedChipset(value);
+                // 칩셋 변경 시 세부 사양 초기화
+                setSelectedColor('');
+                setSelectedRam('');
+                setSelectedSsd('');
+              }}
+            >
+              <option value="" disabled hidden>
+                칩셋 모델
+              </option>
+              {macbook.airChipsets?.map((chip) => (
+                <option key={chip} value={chip}>
+                  {chip}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          {/* 2. 디스플레이 크기 */}
+          <div className="relative w-full">
+            <select
+              className="w-full cursor-pointer appearance-none rounded-lg border border-[#d2d2d7] bg-transparent py-4 pr-10 pl-5 text-base text-[#1d1d1f] transition-all focus:border-[#0071e3] focus:shadow-[0_0_0_4px_rgba(0,113,227,0.15)] focus:outline-none [&:invalid]:text-[#6e6e73]"
+              value={selectedSize}
+              onChange={(e) => setSelectedSize(e.target.value)}
+            >
+              <option value="" disabled hidden>
+                디스플레이 크기
+              </option>
+              {macbookDisplaySizes.map((size) => (
+                <option key={size}>{size}</option>
+              ))}
+            </select>
+          </div>
+
+          <div className="relative w-full">
+            <select
+              className="w-full cursor-pointer appearance-none rounded-lg border border-[#d2d2d7] bg-transparent py-4 pr-10 pl-5 text-base text-[#1d1d1f] transition-all focus:border-[#0071e3] focus:shadow-[0_0_0_4px_rgba(0,113,227,0.15)] focus:outline-none [&:invalid]:text-[#6e6e73]"
+              value={selectedColor}
+              onChange={(e) => setSelectedColor(e.target.value)}
+              disabled={!selectedChipset}
+            >
+              <option value="" disabled hidden>
+                색상
+              </option>
+              {colors.map((color) => (
+                <option key={color}>{color}</option>
+              ))}
+            </select>
+          </div>
+
+          <div className="relative w-full">
+            <select
+              className="w-full cursor-pointer appearance-none rounded-lg border border-[#d2d2d7] bg-transparent py-4 pr-10 pl-5 text-base text-[#1d1d1f] transition-all focus:border-[#0071e3] focus:shadow-[0_0_0_4px_rgba(0,113,227,0.15)] focus:outline-none [&:invalid]:text-[#6e6e73]"
+              value={selectedRam}
+              onChange={(e) => setSelectedRam(e.target.value)}
+              disabled={!selectedChipset}
+            >
+              <option value="" disabled hidden>
+                통합 메모리 (RAM)
+              </option>
+              {rams.map((ram) => (
+                <option key={ram}>{ram}</option>
+              ))}
+            </select>
+          </div>
+
+          <div className="relative w-full">
+            <select
+              className="w-full cursor-pointer appearance-none rounded-lg border border-[#d2d2d7] bg-transparent py-4 pr-10 pl-5 text-base text-[#1d1d1f] transition-all focus:border-[#0071e3] focus:shadow-[0_0_0_4px_rgba(0,113,227,0.15)] focus:outline-none [&:invalid]:text-[#6e6e73]"
+              value={selectedSsd}
+              onChange={(e) => setSelectedSsd(e.target.value)}
+              disabled={!selectedChipset}
+            >
+              <option value="" disabled hidden>
+                저장공간 (SSD)
+              </option>
+              {ssds.map((ssd) => (
+                <option key={ssd}>{ssd}</option>
+              ))}
+            </select>
+          </div>
         </div>
-        <div className="relative w-full">
-          <select
-            className="w-full cursor-pointer appearance-none rounded-lg border border-[#d2d2d7] bg-transparent py-4 pr-10 pl-5 text-base text-[#1d1d1f] transition-all focus:border-[#0071e3] focus:shadow-[0_0_0_4px_rgba(0,113,227,0.15)] focus:outline-none [&:invalid]:text-[#6e6e73]"
-            value={selectedRam}
-            onChange={(e) => setSelectedRam(e.target.value)}
-          >
-            <option value="" disabled hidden>
-              통합 메모리 (RAM)
-            </option>
-            {macbook.rams?.map((ram) => (
-              <option key={ram}>{ram}</option>
-            ))}
-          </select>
+      );
+    }
+
+    // 맥북 프로: 칩셋 선택 → 해당 칩셋에 맞는 색상 / RAM / SSD만 노출
+    if (selectedMacbookModel === '맥북 프로') {
+      const { colors, rams, ssds } = getMacbookProOptions(macbook, selectedChipset);
+
+      return (
+        <div id="macbook-options" className="animate-fadeIn flex flex-col gap-5">
+          {/* 1. 칩셋 */}
+          <div className="relative w-full">
+            <select
+              className="w-full cursor-pointer appearance-none rounded-lg border border-[#d2d2d7] bg-transparent py-4 pr-10 pl-5 text-base text-[#1d1d1f] transition-all focus:border-[#0071e3] focus:shadow-[0_0_0_4px_rgba(0,113,227,0.15)] focus:outline-none [&:invalid]:text-[#6e6e73]"
+              value={selectedChipset}
+              onChange={(e) => {
+                const value = e.target.value;
+                setSelectedChipset(value);
+                // 칩셋 변경 시 세부 사양 초기화
+                setSelectedColor('');
+                setSelectedRam('');
+                setSelectedSsd('');
+              }}
+            >
+              <option value="" disabled hidden>
+                칩셋 모델
+              </option>
+              {macbook.proChipsets?.map((chip) => (
+                <option key={chip} value={chip}>
+                  {chip}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          {/* 2. 디스플레이 크기 */}
+          <div className="relative w-full">
+            <select
+              className="w-full cursor-pointer appearance-none rounded-lg border border-[#d2d2d7] bg-transparent py-4 pr-10 pl-5 text-base text-[#1d1d1f] transition-all focus:border-[#0071e3] focus:shadow-[0_0_0_4px_rgba(0,113,227,0.15)] focus:outline-none [&:invalid]:text-[#6e6e73]"
+              value={selectedSize}
+              onChange={(e) => setSelectedSize(e.target.value)}
+            >
+              <option value="" disabled hidden>
+                디스플레이 크기
+              </option>
+              {macbookDisplaySizes.map((size) => (
+                <option key={size}>{size}</option>
+              ))}
+            </select>
+          </div>
+
+          <div className="relative w-full">
+            <select
+              className="w-full cursor-pointer appearance-none rounded-lg border border-[#d2d2d7] bg-transparent py-4 pr-10 pl-5 text-base text-[#1d1d1f] transition-all focus:border-[#0071e3] focus:shadow-[0_0_0_4px_rgba(0,113,227,0.15)] focus:outline-none [&:invalid]:text-[#6e6e73]"
+              value={selectedColor}
+              onChange={(e) => setSelectedColor(e.target.value)}
+              disabled={!selectedChipset}
+            >
+              <option value="" disabled hidden>
+                색상
+              </option>
+              {colors.map((color) => (
+                <option key={color}>{color}</option>
+              ))}
+            </select>
+          </div>
+
+          <div className="relative w-full">
+            <select
+              className="w-full cursor-pointer appearance-none rounded-lg border border-[#d2d2d7] bg-transparent py-4 pr-10 pl-5 text-base text-[#1d1d1f] transition-all focus:border-[#0071e3] focus:shadow-[0_0_0_4px_rgba(0,113,227,0.15)] focus:outline-none [&:invalid]:text-[#6e6e73]"
+              value={selectedRam}
+              onChange={(e) => setSelectedRam(e.target.value)}
+              disabled={!selectedChipset}
+            >
+              <option value="" disabled hidden>
+                통합 메모리 (RAM)
+              </option>
+              {rams.map((ram) => (
+                <option key={ram}>{ram}</option>
+              ))}
+            </select>
+          </div>
+
+          <div className="relative w-full">
+            <select
+              className="w-full cursor-pointer appearance-none rounded-lg border border-[#d2d2d7] bg-transparent py-4 pr-10 pl-5 text-base text-[#1d1d1f] transition-all focus:border-[#0071e3] focus:shadow-[0_0_0_4px_rgba(0,113,227,0.15)] focus:outline-none [&:invalid]:text-[#6e6e73]"
+              value={selectedSsd}
+              onChange={(e) => setSelectedSsd(e.target.value)}
+              disabled={!selectedChipset}
+            >
+              <option value="" disabled hidden>
+                저장공간 (SSD)
+              </option>
+              {ssds.map((ssd) => (
+                <option key={ssd}>{ssd}</option>
+              ))}
+            </select>
+          </div>
         </div>
-        <div className="relative w-full">
-          <select
-            className="w-full cursor-pointer appearance-none rounded-lg border border-[#d2d2d7] bg-transparent py-4 pr-10 pl-5 text-base text-[#1d1d1f] transition-all focus:border-[#0071e3] focus:shadow-[0_0_0_4px_rgba(0,113,227,0.15)] focus:outline-none [&:invalid]:text-[#6e6e73]"
-            value={selectedSsd}
-            onChange={(e) => setSelectedSsd(e.target.value)}
-          >
-            <option value="" disabled hidden>
-              저장공간 (SSD)
-            </option>
-            {macbook.ssds?.map((ssd) => (
-              <option key={ssd}>{ssd}</option>
-            ))}
-          </select>
-        </div>
-      </div>
-    );
+      );
+    }
+
+    // 혹시 모를 기타 맥북 모델에 대한 폴백
+    return null;
   };
 
   const renderWatchOptions = () => {
     const watch = deviceOptions?.watch;
     if (!watch) return null;
+
+    const {
+      sizes: watchSizes,
+      materials: watchMaterials,
+      connections: watchConnections,
+    } = getWatchModelOptions(watch, selectedSeries);
 
     return (
       <div id="watch-options" className="animate-fadeIn flex flex-col gap-5">
@@ -469,11 +793,12 @@ export default function SearchPage() {
             className="w-full cursor-pointer appearance-none rounded-lg border border-[#d2d2d7] bg-transparent py-4 pr-10 pl-5 text-base text-[#1d1d1f] transition-all focus:border-[#0071e3] focus:shadow-[0_0_0_4px_rgba(0,113,227,0.15)] focus:outline-none [&:invalid]:text-[#6e6e73]"
             value={selectedSize}
             onChange={(e) => setSelectedSize(e.target.value)}
+            disabled={!selectedSeries}
           >
             <option value="" disabled hidden>
               크기(mm)
             </option>
-            {watch.sizes?.map((size) => (
+            {watchSizes?.map((size) => (
               <option key={size}>{size}</option>
             ))}
           </select>
@@ -483,12 +808,28 @@ export default function SearchPage() {
             className="w-full cursor-pointer appearance-none rounded-lg border border-[#d2d2d7] bg-transparent py-4 pr-10 pl-5 text-base text-[#1d1d1f] transition-all focus:border-[#0071e3] focus:shadow-[0_0_0_4px_rgba(0,113,227,0.15)] focus:outline-none [&:invalid]:text-[#6e6e73]"
             value={selectedMaterial}
             onChange={(e) => setSelectedMaterial(e.target.value)}
+            disabled={!selectedSeries}
           >
             <option value="" disabled hidden>
               본체 소재
             </option>
-            {watch.materials?.map((material) => (
+            {watchMaterials?.map((material) => (
               <option key={material}>{material}</option>
+            ))}
+          </select>
+        </div>
+        <div className="relative w-full">
+          <select
+            className="w-full cursor-pointer appearance-none rounded-lg border border-[#d2d2d7] bg-transparent py-4 pr-10 pl-5 text-base text-[#1d1d1f] transition-all focus:border-[#0071e3] focus:shadow-[0_0_0_4px_rgba(0,113,227,0.15)] focus:outline-none [&:invalid]:text-[#6e6e73]"
+            value={selectedConnection}
+            onChange={(e) => setSelectedConnection(e.target.value)}
+            disabled={!selectedSeries}
+          >
+            <option value="" disabled hidden>
+              연결
+            </option>
+            {watchConnections?.map((connection) => (
+              <option key={connection}>{connection}</option>
             ))}
           </select>
         </div>
@@ -544,7 +885,7 @@ export default function SearchPage() {
         {isSearchFocused && (
           <div className="absolute z-20 mt-1 w-full rounded-lg border border-[#d2d2d7] bg-white text-left shadow-lg">
             {filteredModels.length > 0 ? (
-              <ul className="max-h-60 overflow-y-auto py-1">
+              <ul className="max-h-[500px] overflow-y-auto py-1">
                 {filteredModels.map((item) => (
                   <li
                     key={item.value}

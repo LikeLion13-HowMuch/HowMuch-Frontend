@@ -46,6 +46,19 @@ export const getPriceAnalysis = async (requestData) => {
 
     return response.data;
   } catch (error) {
+    // 네트워크 오류인 경우 더 명확한 메시지 제공
+    if (error.code === 'ERR_NETWORK' || error.message === 'Network Error') {
+      const networkError = new Error(
+        `백엔드 서버에 연결할 수 없습니다. 서버가 실행 중인지 확인해주세요.\n` +
+          `요청 URL: ${API_BASE_URL}/v1/analytics/summary`,
+      );
+      networkError.isNetworkError = true;
+      networkError.originalError = error;
+      console.error('네트워크 오류:', networkError.message);
+      throw networkError;
+    }
+
+    // 기타 오류
     console.error('API 호출 오류:', error);
     throw error;
   }
