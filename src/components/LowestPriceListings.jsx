@@ -83,9 +83,11 @@ export default function LowestPriceListings({ listings = [], district, city, pro
   };
 
   return (
-    <section className="mb-0">
-      <h2 className="mb-10 text-left text-3xl font-semibold tracking-tight">{title}</h2>
-      <div className="flex flex-col gap-4">
+    <section className="mb-0 border-t border-[#e8e8ed] pt-8 md:border-0 md:pt-0">
+      <h2 className="mb-6 text-left text-xl font-semibold tracking-tight md:mb-10 md:text-3xl">
+        {title}
+      </h2>
+      <div className="flex flex-col gap-3 md:gap-4">
         {paginatedListings.map((listing, index) => {
           const platformInfo = getPlatformInfo(listing.source);
 
@@ -95,7 +97,7 @@ export default function LowestPriceListings({ listings = [], district, city, pro
               href={listing.source_url}
               target="_blank"
               rel="noopener noreferrer"
-              className="relative flex cursor-pointer items-center rounded-xl p-4 transition-colors"
+              className="relative flex cursor-pointer items-center rounded-xl p-3 transition-colors md:p-4"
               style={{
                 backgroundColor: 'transparent',
               }}
@@ -110,13 +112,18 @@ export default function LowestPriceListings({ listings = [], district, city, pro
                 <img
                   src={platformInfo.logo}
                   alt={`${listing.source} 로고`}
-                  className={`mr-4 flex-shrink-0 ${platformInfo.isBunjang ? 'h-15 w-15' : 'h-15 w-15'}`}
+                  className={`mr-3 h-12 w-12 flex-shrink-0 md:mr-4 md:h-15 md:w-15 ${platformInfo.isBunjang ? '' : ''}`}
                 />
               )}
               <div className="flex-grow">
-                <p className="m-0 mb-1 text-lg font-bold">₩{formatPrice(listing.listing_price)}</p>
-                <p className="m-0 text-sm text-[#86868b]">{listing.district_detail}</p>
-                <p className="m-0 mt-1 text-xs font-semibold" style={{ color: platformInfo.color }}>
+                <p className="m-0 mb-1 text-base font-bold md:text-lg">
+                  ₩{formatPrice(listing.listing_price)}
+                </p>
+                <p className="m-0 text-xs text-[#86868b] md:text-sm">{listing.district_detail}</p>
+                <p
+                  className="m-0 mt-1 text-[10px] font-semibold md:text-xs"
+                  style={{ color: platformInfo.color }}
+                >
                   출처:{' '}
                   {listing.source == 'daangn'
                     ? '당근마켓'
@@ -132,7 +139,7 @@ export default function LowestPriceListings({ listings = [], district, city, pro
         })}
       </div>
       {totalPages > 1 && (
-        <div className="mt-6 flex items-center justify-center gap-1 text-sm font-semibold text-[#6e6e73]">
+        <div className="mt-4 flex items-center justify-center gap-1 text-xs font-semibold text-[#6e6e73] md:mt-6 md:text-sm">
           <button
             type="button"
             onClick={() => handlePageChange(currentPage - 1)}
