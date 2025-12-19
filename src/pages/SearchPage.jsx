@@ -969,9 +969,11 @@ export default function SearchPage() {
   };
 
   return (
-    <div className="box-border flex min-h-screen w-full items-center justify-center py-24 text-center">
+    <div className="box-border flex min-h-screen w-full items-center justify-center py-12 text-center md:py-24">
       <div className="animate-fadeIn w-full max-w-[600px] p-5">
-        <h1 className="mb-6 font-['Inter'] text-[3.5rem] font-extrabold">How Much, Apple</h1>
+        <h1 className="mb-6 font-['Inter'] text-[3.5rem] leading-none font-extrabold">
+          How Much, Apple
+        </h1>
         <p className="mb-14 text-lg leading-relaxed text-[#86868b]">
           당신의 중고 Apple 제품, 제 가치를 알고 있나요?
           <br /> 데이터가 알려주는 가장 정확한 현재의 가치.

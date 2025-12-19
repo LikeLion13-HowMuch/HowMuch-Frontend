@@ -50,21 +50,21 @@ export default function LowestPriceListings({ listings = [], district, city, pro
   const getPlatformInfo = (source) => {
     const sourceLower = source?.toLowerCase() || '';
 
-    if (sourceLower.includes('당근')) {
+    if (sourceLower.includes('daangn')) {
       return {
         color: '#FF7E32', // 당근마켓 오렌지
         logo: '/carrot.png',
         hoverBg: '#FFF4ED', // 어두운 파스텔톤 오렌지
         isBunjang: false,
       };
-    } else if (sourceLower.includes('번개')) {
+    } else if (sourceLower.includes('bunjang')) {
       return {
         color: '#FF1439', // 번개장터 빨간색
         logo: '/bunjang.png',
         hoverBg: '#FFEBED', // 어두운 파스텔톤 빨간색
         isBunjang: true,
       };
-    } else if (sourceLower.includes('중고나라') || sourceLower.includes('중고나라')) {
+    } else if (sourceLower.includes('joongna')) {
       return {
         color: '#2DB400', // 중고나라 초록색
         logo: '/nara.png',
@@ -117,7 +117,14 @@ export default function LowestPriceListings({ listings = [], district, city, pro
                 <p className="m-0 mb-1 text-lg font-bold">₩{formatPrice(listing.listing_price)}</p>
                 <p className="m-0 text-sm text-[#86868b]">{listing.district_detail}</p>
                 <p className="m-0 mt-1 text-xs font-semibold" style={{ color: platformInfo.color }}>
-                  출처: {listing.source}
+                  출처:{' '}
+                  {listing.source == 'daangn'
+                    ? '당근마켓'
+                    : listing.source == 'bunjang'
+                      ? '번개장터'
+                      : listing.source == 'joongna'
+                        ? '중고나라'
+                        : '기타'}
                 </p>
               </div>
             </a>
