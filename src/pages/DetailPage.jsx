@@ -109,47 +109,6 @@ export default function DetailPage() {
         const initialSorted = sortData(districtList, 'price', 'asc');
         setSortedDistrictData(initialSorted);
         // ===== API 연결 부분 끝 =====
-
-        // ===== 더미 데이터 사용 =====
-        // 더미 요청 데이터 생성 (location.state 기반)
-        //const dummyRequestData = {
-        //spec: {
-        //    model:
-        //      location.state?.model ||
-        //      location.state?.macbookModel ||
-        //      location.state?.series ||
-        //      'iPhone 16 Pro',
-        //  },
-        //  region: {
-        //    sd: location.state?.location?.province || '서울특별시',
-        //    sgg: location.state?.location?.city || '관악구',
-        //    emd: location.state?.location?.district || '신림동',
-        //  },
-        //};
-
-        // 더미 API 호출
-        //const response = await getPriceAnalysis(dummyRequestData);
-
-        // response 또는 response.data가 null일 경우 방어 처리
-        //if (!response || !response.data) {
-        //  throw new Error('API returned empty data (response.data is null)');
-        //}
-
-        //setApiData(response.data);
-
-        // 지역별 시세 데이터 설정
-        //const districtList =
-        //  response.data.regional_analysis?.detail_by_district?.map((item) => ({
-        //    district: item.emd,
-        //    average: item.average_price,
-        //    count: item.listing_count,
-        //  })) || [];
-
-        //setDistrictData(districtList);
-        // 초기 로드 시 평균가 기준 오름차순 정렬 (최저가순)
-        //const initialSorted = sortData(districtList, 'price', 'asc');
-        //setSortedDistrictData(initialSorted);
-        // ===== 더미 데이터 사용 끝 =====
       } catch (err) {
         console.error('데이터 로드 실패:', err);
 
@@ -166,7 +125,15 @@ export default function DetailPage() {
           );
         } else if (err.response) {
           // 서버 응답이 있는 경우 (4xx, 5xx)
-          setError(`서버 오류가 발생했습니다. (${err.response.status})`);
+
+          // 서버 응답이 400일때만
+          // 제품이 없는 거다. 다른 제품 검색
+          if (err.response.status === 400) {
+            setError(`다른 제품을 검색해주세요!`);
+          } else {
+            // 그 외 에러 (500 등) 처리 - 필요하면 추가
+            setError(`서버 오류가 발생했습니다.`);
+          }
         } else {
           // 기타 오류
           setError('데이터를 불러오는데 실패했습니다. 다시 시도해주세요.');
@@ -319,7 +286,9 @@ export default function DetailPage() {
     return (
       <div className="flex min-h-screen items-center justify-center bg-white">
         <div className="text-center">
-          <div className="mb-4 text-2xl font-semibold text-red-500">오류가 발생했습니다</div>
+          <div className="mb-4 text-2xl font-semibold text-red-500">
+            해당 제품이 존재하지 않습니다.
+          </div>
           <p className="mb-6 text-lg text-[#86868b]">{error}</p>
           <button
             onClick={() => navigate('/')}
