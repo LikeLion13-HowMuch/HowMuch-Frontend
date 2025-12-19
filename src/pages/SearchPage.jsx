@@ -975,8 +975,8 @@ export default function SearchPage() {
           How Much, Apple
         </h1>
         <p className="mb-14 text-lg leading-relaxed text-[#86868b]">
-          당신의 중고 Apple 제품, 제 가치를 알고 있나요?
-          <br /> 데이터가 알려주는 가장 정확한 현재의 가치.
+          중고 Apple 제품, 제 가격을 알고 있나요?
+          <br /> 데이터가 알려주는 가장 정확한 중고 시세.
         </p>
 
         <form className="flex flex-col gap-5" onSubmit={handleSubmit}>
