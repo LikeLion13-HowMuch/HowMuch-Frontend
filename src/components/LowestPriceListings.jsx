@@ -50,21 +50,21 @@ export default function LowestPriceListings({ listings = [], district, city, pro
   const getPlatformInfo = (source) => {
     const sourceLower = source?.toLowerCase() || '';
 
-    if (sourceLower.includes('당근')) {
+    if (sourceLower.includes('daangn')) {
       return {
         color: '#FF7E32', // 당근마켓 오렌지
         logo: '/carrot.png',
         hoverBg: '#FFF4ED', // 어두운 파스텔톤 오렌지
         isBunjang: false,
       };
-    } else if (sourceLower.includes('번개')) {
+    } else if (sourceLower.includes('bunjang')) {
       return {
         color: '#FF1439', // 번개장터 빨간색
         logo: '/bunjang.png',
         hoverBg: '#FFEBED', // 어두운 파스텔톤 빨간색
         isBunjang: true,
       };
-    } else if (sourceLower.includes('중고나라') || sourceLower.includes('중고나라')) {
+    } else if (sourceLower.includes('joongna')) {
       return {
         color: '#2DB400', // 중고나라 초록색
         logo: '/nara.png',
