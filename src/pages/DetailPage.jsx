@@ -384,25 +384,11 @@ export default function DetailPage() {
         {/* 1. 상단 Hero 섹션 - 가격 정보 통합 */}
         <section className="animate-fadeIn mb-10 md:mb-20" style={{ animationDelay: '0.1s' }}>
           {/* 통합된 가격 정보 섹션 */}
-          <div className="mx-auto mb-6 box-border w-full max-w-[300px] rounded-2xl bg-gradient-to-br from-[#f5f5f7] to-[#e8e8ed] p-4 md:mb-8 md:max-w-full md:p-10">
+          <div className="mx-auto mb-6 box-border w-full max-w-[350px] rounded-2xl bg-gradient-to-br from-[#f5f5f7] to-[#e8e8ed] p-4 md:mb-8 md:max-w-full md:p-10">
             {' '}
             <div className="flex flex-col items-center justify-center gap-4 md:flex-row md:gap-12">
-              {/* 최저가 매물 */}
-              <div className="w-full flex-1 text-center md:w-auto">
-                <h4 className="m-0 mb-2 text-sm font-semibold text-[#86868b] md:mb-3 md:text-base">
-                  최저가 매물
-                </h4>
-                <p className="m-0 text-2xl font-bold text-[#1d1d1f] md:text-3xl">
-                  ₩{formatPrice(apiData.summary_info.lowest_listing_price)}
-                </p>
-              </div>
-
-              {/* 구분선 */}
-              <div className="hidden h-20 w-px bg-[#d2d2d7] md:block"></div>
-              <div className="w-full border-t border-[#d2d2d7] md:hidden"></div>
-
-              {/* 평균 시세 (강조) */}
-              <div className="w-full flex-1 text-center md:w-auto">
+              {/* 평균 시세 (강조) - 모바일에서 첫 번째, 데스크톱에서 두 번째 */}
+              <div className="order-1 w-full flex-1 text-center md:order-2 md:w-auto">
                 <h3 className="m-0 mb-3 text-lg font-semibold text-[#1d1d1f] md:mb-4 md:text-xl">
                   평균 시세 (중고)
                 </h3>
@@ -411,16 +397,41 @@ export default function DetailPage() {
                 </p>
               </div>
 
-              {/* 구분선 */}
-              <div className="hidden h-20 w-px bg-[#d2d2d7] md:block"></div>
-              <div className="w-full border-t border-[#d2d2d7] md:hidden"></div>
+              {/* 구분선 - 모바일에서 두 번째, 데스크톱에서 첫 번째 */}
+              <div className="order-2 hidden h-20 w-px bg-[#d2d2d7] md:hidden"></div>
+              <div className="order-2 w-full border-t border-[#d2d2d7] md:hidden"></div>
 
-              {/* 최고가 매물 */}
-              <div className="w-full flex-1 text-center md:w-auto">
-                <h4 className="m-0 mb-2 text-sm font-semibold text-[#86868b] md:mb-3 md:text-base">
-                  최고가 매물
-                </h4>
-                <p className="m-0 text-2xl font-bold text-[#1d1d1f] md:text-3xl">
+              {/* 최저가/최고가 컨테이너 - 모바일에서만 같은 row */}
+              <div className="order-3 grid w-full grid-cols-2 gap-4 md:hidden">
+                {/* 최저가 매물 */}
+                <div className="flex-1 text-center">
+                  <h4 className="m-0 mb-2 text-sm font-semibold text-[#86868b]">최저가 매물</h4>
+                  <p className="m-0 text-2xl font-bold text-[#1d1d1f]">
+                    ₩{formatPrice(apiData.summary_info.lowest_listing_price)}
+                  </p>
+                </div>
+
+                {/* 최고가 매물 */}
+                <div className="flex-1 text-center">
+                  <h4 className="m-0 mb-2 text-sm font-semibold text-[#86868b]">최고가 매물</h4>
+                  <p className="m-0 text-2xl font-bold text-[#1d1d1f]">
+                    ₩{formatPrice(apiData.summary_info.highest_listing_price)}
+                  </p>
+                </div>
+              </div>
+
+              {/* 데스크톱: 최저가 매물 - 독립적으로 배치 */}
+              <div className="order-1 hidden w-full flex-1 text-center md:order-1 md:block md:w-auto">
+                <h4 className="m-0 mb-3 text-base font-semibold text-[#86868b]">최저가 매물</h4>
+                <p className="m-0 text-3xl font-bold text-[#1d1d1f]">
+                  ₩{formatPrice(apiData.summary_info.lowest_listing_price)}
+                </p>
+              </div>
+
+              {/* 데스크톱: 최고가 매물 - 독립적으로 배치 */}
+              <div className="order-3 hidden w-full flex-1 text-center md:order-3 md:block md:w-auto">
+                <h4 className="m-0 mb-3 text-base font-semibold text-[#86868b]">최고가 매물</h4>
+                <p className="m-0 text-3xl font-bold text-[#1d1d1f]">
                   ₩{formatPrice(apiData.summary_info.highest_listing_price)}
                 </p>
               </div>
