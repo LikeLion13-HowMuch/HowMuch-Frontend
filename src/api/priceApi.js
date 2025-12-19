@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 // API Base URL (환경변수로 관리 가능)
-const API_BASE_URL = 'http://localhost:8000/api';
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000/api';
 // 없으면 그냥 로컬호스트로 관리됨.
 
 const WEEKS_TO_DISPLAY = 4;
