@@ -345,7 +345,7 @@ export default function DetailPage() {
   return (
     <div className="min-h-screen overflow-x-hidden bg-white">
       {/* 고정 헤더 */}
-      <header className="sticky top-0 z-50 border-b border-[#d2d2d7] bg-white/80 backdrop-blur-md">
+      <header className="fixed top-0 right-0 left-0 z-50 border-b border-[#d2d2d7] bg-white/80 backdrop-blur-md">
         <div className="mx-auto flex max-w-[1400px] items-center justify-between px-6 py-3 md:px-10 md:py-4">
           {/* 로고 */}
           <div
@@ -367,7 +367,7 @@ export default function DetailPage() {
         </div>
       </header>
 
-      <div className="mx-auto max-w-[1200px] p-4 md:p-10">
+      <div className="mx-auto max-w-[1200px] p-4 pt-[80px] md:p-10 md:pt-[110px]">
         {/* 페이지 타이틀 */}
         <header className="animate-fadeIn mb-5 text-center md:mb-[60px]">
           <h1 className="m-0 text-2xl font-bold tracking-tight md:text-[3.25rem]">
