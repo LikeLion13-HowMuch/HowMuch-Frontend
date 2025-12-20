@@ -332,6 +332,12 @@ export default function SearchPage() {
     // 제출 성공 시 경고 상태 초기화
     setHasTriedSubmit(false);
 
+    const isSeoulCityOnly = selectedProvince === '서울특별시' && selectedCity && !selectedDistrict;
+    if (isSeoulCityOnly) {
+      alert('동(읍/면)까지 선택해주세요!.');
+      return;
+    }
+
     // 상세 시세 페이지로 이동
     navigate('/detail', {
       state: {
