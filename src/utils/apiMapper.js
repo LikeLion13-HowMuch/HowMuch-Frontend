@@ -54,6 +54,7 @@ export const mapFormDataToApiRequest = (formData) => {
     ram,
     ssd,
     series,
+    screen_size,
     size,
     material,
     location,
@@ -74,6 +75,10 @@ export const mapFormDataToApiRequest = (formData) => {
   const convertedModel = modelKoreanMap[rawModel] || rawModel;
 
   // 1) 공통 스펙
+  const isMacbook = category === 'macbook';
+  const resolvedScreenSize = isMacbook && !screen_size ? size : screen_size;
+  const resolvedSize = isMacbook ? null : size;
+
   let spec = {
     model: convertedModel,
     storage: storage || null,
@@ -81,8 +86,8 @@ export const mapFormDataToApiRequest = (formData) => {
     chip: chipset || null,
     ram: ram || null,
     ssd: ssd || null,
-    screen_size: null,
-    size: size || null,
+    screen_size: resolvedScreenSize || null,
+    size: resolvedSize || null,
     material: material || null,
     connectivity: connection || null,
     cellular: connection || null,
